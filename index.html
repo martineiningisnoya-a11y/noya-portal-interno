@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noya — Portal Interno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root{--font-sans:'DM Sans',sans-serif;--bg:#fff;--bg2:#f4f6fb;--bg3:#eef1f8;--bgi:#dbeafe;--bgs:#dcfce7;--bgw:#fef9c3;--bgd:#fee2e2;--ti:#0a0e1a;--ts:#6b7280;--tt:#9ca3af;--tii:#185FA5;--tss:#3B6D11;--tww:#BA7517;--tdd:#b91c1c;--bo:#e5e7eb;--bom:#d1d5db;--r:8px;--rl:12px;--navy:#0a0e1a;--blue:#185FA5}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--ti);background:var(--bg3);font-size:14px}
+.screen{display:none}.screen.active{display:flex}
+#login-screen{min-height:100vh;align-items:center;justify-content:center;background:#0a0e1a;position:relative;overflow:hidden}
+.lgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(26,108,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(26,108,255,.07) 1px,transparent 1px);background-size:48px 48px}
+.lbox{position:relative;background:var(--bg);border:0.5px solid var(--bo);border-radius:var(--rl);padding:32px 28px;width:340px}
+.lf{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.lf label{font-size:12px;color:var(--ts)}
+.lf input{padding:9px 12px;border-radius:var(--r);border:0.5px solid var(--bom);background:var(--bg2);color:var(--ti);font-size:13px;width:100%;font-family:var(--font-sans)}
+.lf input:focus{outline:none;border-color:var(--blue)}
+.lbtn{width:100%;padding:10px;border-radius:var(--r);background:var(--navy);color:#fff;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.lbtn:hover{background:var(--blue)}
+.lerr{background:var(--bgd);color:var(--tdd);border-radius:var(--r);padding:8px 12px;font-size:12px;margin-bottom:12px;display:none;text-align:center}
+.lerr.show{display:block}
+#portal-screen{flex-direction:column;min-height:100vh}
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+.sidebar{background:var(--bg);border-right:0.5px solid var(--bo);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sbh{padding:14px 16px;border-bottom:0.5px solid var(--bo);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.ns{padding:12px 16px 3px;font-size:10px;color:var(--tt);letter-spacing:.5px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--ts);border-left:2px solid transparent;transition:background .12s}
+.ni:hover{background:var(--bg2);color:var(--ti)}
+.ni.on{background:var(--bgi);color:var(--tii);border-left:2px solid var(--blue);font-weight:500}
+.ni i{font-size:15px;width:15px}
+.sbf{margin-top:auto;padding:12px 16px;border-top:0.5px solid var(--bo);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.sav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.obtn{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--tt);font-size:16px;padding:3px}
+.obtn:hover{color:var(--tdd)}
+.main{display:flex;flex-direction:column}
+.topbar{background:var(--bg);border-bottom:0.5px solid var(--bo);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.tbt{font-size:15px;font-weight:500}
+.cnt{padding:20px;overflow-y:auto;flex:1}
+.sec{display:none}.sec.on{display:block}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;border:0.5px solid var(--bom);background:transparent;color:var(--ti);font-family:var(--font-sans);transition:background .12s}
+.btn:hover{background:var(--bg2)}
+.bp{background:var(--navy);color:#fff;border-color:var(--navy)}
+.bp:hover{background:#1a2240;color:#fff}
+.bd{background:var(--bgd);color:var(--tdd);border-color:var(--tdd)}
+.be{background:var(--bgw);color:var(--tww);border-color:var(--tww)}
+.card{background:var(--bg);border:0.5px solid var(--bo);border-radius:var(--rl);padding:16px;margin-bottom:12px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:14px;font-weight:500}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.metric{background:var(--bg2);border-radius:var(--r);padding:14px}
+.ml{font-size:11px;color:var(--ts);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px}
+.mv{font-size:22px;font-weight:500;line-height:1}
+.ms{font-size:11px;color:var(--ts);margin-top:4px}
+.pill{display:inline-flex;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:500;white-space:nowrap}
+.pi{background:var(--bgi);color:var(--tii)}
+.pg{background:var(--bgs);color:var(--tss)}
+.pa{background:var(--bgw);color:var(--tww)}
+.pr{background:var(--bgd);color:var(--tdd)}
+.ps{background:var(--bg2);color:var(--ts)}
+.ri{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--bo)}
+.ri:last-child{border-bottom:none;padding-bottom:0}
+.ico{width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:1px}
+.rin{flex:1;min-width:0}
+.rt{font-size:13px;font-weight:500}
+.rs{font-size:11px;color:var(--ts);margin-top:2px}
+.pb{height:3px;border-radius:2px;background:var(--bg2);margin-top:5px;overflow:hidden}
+.pf{height:100%;border-radius:2px}
+.ff{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.ff label{font-size:12px;color:var(--ts)}
+.ff input,.ff select,.ff textarea{padding:7px 10px;border-radius:var(--r);border:0.5px solid var(--bom);background:var(--bg);color:var(--ti);font-family:var(--font-sans);font-size:13px}
+.ff input:focus,.ff select:focus,.ff textarea:focus{outline:none;border-color:var(--blue)}
+.ff textarea{resize:vertical;min-height:70px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.fw{grid-column:1/-1}
+.empty{text-align:center;padding:32px 16px;color:var(--tt)}
+.empty i{font-size:32px;display:block;margin-bottom:10px;opacity:.4}
+.empty p{font-size:13px}
+.cc{background:var(--bg);border:0.5px solid var(--bo);border-radius:var(--rl);padding:13px;display:flex;flex-direction:column;gap:5px}
+.cav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
+.mwrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.mwrap.open{display:flex}
+.mbox{background:var(--bg);border-radius:var(--rl);width:440px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:22px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.mx{position:absolute;top:12px;right:14px;background:none;border:none;cursor:pointer;font-size:18px;color:var(--ts)}
+.mx:hover{color:var(--tdd)}
+.aichat{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow-y:auto}
+.aim{display:flex;gap:9px;align-items:flex-start}
+.aim.u{flex-direction:row-reverse}
+.aib{background:var(--bg2);border-radius:var(--rl);padding:10px 14px;font-size:13px;max-width:82%;line-height:1.6}
+.aim.u .aib{background:var(--bgi);color:var(--tii)}
+.aiav{width:26px;height:26px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.airow{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--bo)}
+.airow input{flex:1;padding:8px 12px;border-radius:var(--r);border:0.5px solid var(--bom);background:var(--bg);color:var(--ti);font-family:var(--font-sans);font-size:13px}
+.shov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center}
+.shov.open{display:flex}
+.shbox{background:var(--bg);border-radius:var(--rl);width:380px;padding:22px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.ptbl{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
+.ptbl th{text-align:left;padding:4px 6px;font-weight:500;color:var(--ts);border-bottom:0.5px solid var(--bo)}
+.ptbl td{padding:5px 6px;border-bottom:0.5px solid var(--bo);vertical-align:top}
+.ptbl tr:last-child td{border-bottom:none}
+.mcard{background:var(--bg);border:0.5px solid var(--bo);border-radius:var(--rl);padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;position:relative}
+.mcard-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500}
+.sync-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bgi);border-radius:var(--r);font-size:12px;color:var(--tii);margin-bottom:14px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--tii);animation:pulse 1.5s infinite}
+.utbl{width:100%;border-collapse:collapse;font-size:13px}
+.utbl th{text-align:left;padding:8px 10px;font-weight:500;color:var(--ts);font-size:11px;text-transform:uppercase;border-bottom:0.5px solid var(--bo);background:var(--bg2)}
+.utbl td{padding:10px 10px;border-bottom:0.5px solid var(--bo);vertical-align:middle}
+.utbl tr:last-child td{border-bottom:none}
+.utbl tr:hover td{background:var(--bg2)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.g2,.g3,.fg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="lgrid"></div>
+  <div class="lbox">
+    <div style="text-align:center;margin-bottom:20px">
+      <img src="data:image/png;base64,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" alt="Logo Noya" style="width:80px;height:80px;object-fit:contain;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto">
+      <div style="font-size:22px;font-weight:600;letter-spacing:-.5px">Noya</div>
+      <div style="font-size:12px;color:var(--ts)">Portal interno de operaciones</div>
+    </div>
+    <div style="border-top:.5px solid var(--bo);margin-bottom:16px"></div>
+    <div id="lerr" class="lerr">Usuario no reconocido</div>
+    <div class="lf"><label>Usuario</label><input id="lu" placeholder="Ingresá tu usuario" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username" style="text-transform:lowercase"></div>
+    <button class="lbtn" onclick="doLogin()">Ingresar al portal</button>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal-screen" class="screen">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sbh">
+        <img src="data:image/png;base64,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" alt="Logo" style="width:26px;height:26px;object-fit:contain;border-radius:6px;flex-shrink:0">
+        <div>
+          <div style="font-size:13px;font-weight:500">Noya</div>
+          <div style="font-size:10px;color:var(--ts)">Portal interno</div>
+        </div>
+      </div>
+      <div class="ns">Principal</div>
+      <div class="ni on" onclick="go('dashboard',this)"><i class="ti ti-home"></i> Dashboard</div>
+      <div class="ni" onclick="go('proyectos',this)"><i class="ti ti-folder"></i> Proyectos</div>
+      <div class="ni" onclick="go('tareas',this)"><i class="ti ti-checklist"></i> Tareas</div>
+      <div class="ni" onclick="go('ubicacion',this)"><i class="ti ti-map-pin"></i> Ubicación sitio</div>
+      <div class="ns">Operaciones</div>
+      <div class="ni" onclick="go('presupuestos',this)"><i class="ti ti-calculator"></i> Presupuestos</div>
+      <div class="ni" onclick="go('reportes',this)"><i class="ti ti-chart-bar"></i> Reportes</div>
+      <div class="ni" onclick="go('incidencias',this)"><i class="ti ti-alert-triangle"></i> Incidencias</div>
+      <div class="ni" onclick="go('cargar',this)"><i class="ti ti-upload"></i> Cargar info</div>
+      <div class="ns">Contactos</div>
+      <div class="ni" onclick="go('proveedores',this)"><i class="ti ti-building-store"></i> Proveedores</div>
+      <div class="ni" onclick="go('sites',this)"><i class="ti ti-antenna"></i> Contactos Sites</div>
+      <div class="ni" onclick="go('sytex',this)"><i class="ti ti-id-badge"></i> Usuarios Sytex</div>
+      <div class="ns">Equipo</div>
+      <div class="ni" onclick="go('equipo',this)"><i class="ti ti-users"></i> Miembros</div>
+      <div class="ni admin-only" onclick="go('admin',this)" style="display:none"><i class="ti ti-shield"></i> Administración</div>
+      <div class="ni" onclick="go('asistente',this)"><i class="ti ti-sparkles"></i> Asistente IA</div>
+      <div class="sbf">
+        <div class="sav" id="sf-av"></div>
+        <div style="min-width:0"><div id="sf-name" style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div id="sf-role" style="font-size:10px;color:var(--ts)"></div></div>
+        <button class="obtn" onclick="doLogout()" title="Cerrar sesión"><i class="ti ti-logout"></i></button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="tbt" id="ttitle">Dashboard</div>
+          <div id="tbadge" class="pill" style="font-size:10px"></div>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center">
+          <div id="sync-status" style="font-size:11px;color:var(--tss);display:flex;align-items:center;gap:5px"><i class="ti ti-cloud-check" style="font-size:14px"></i> Google Sheets</div>
+          <button class="btn" onclick="openShare()"><i class="ti ti-share" style="font-size:13px"></i> Compartir</button>
+          <button class="btn bp" onclick="go('asistente',null)"><i class="ti ti-sparkles" style="font-size:13px"></i> IA</button>
+        </div>
+      </div>
+
+      <div class="cnt">
+
+        <!-- DASHBOARD -->
+        <div id="s-dashboard" class="sec on">
+          <div id="wel" style="font-size:13px;color:var(--ts);margin-bottom:12px"></div>
+          <div id="sync-bar" class="sync-bar" style="display:none"><span class="sync-dot"></span> Sincronizando con Google Sheets...</div>
+          <div id="alert-rech" style="display:none;background:var(--bgd);border-radius:var(--r);padding:9px 13px;font-size:12px;color:var(--tdd);margin-bottom:12px;align-items:center;gap:8px">
+            <i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i><span id="alert-rech-txt"></span>
+          </div>
+          <div class="g3" style="margin-bottom:14px">
+            <div class="metric"><div class="ml">Proyectos</div><div class="mv" id="m-p">—</div><div class="ms">activos</div></div>
+            <div class="metric"><div class="ml">Tareas abiertas</div><div class="mv" id="m-t">—</div><div class="ms">pendientes</div></div>
+            <div class="metric"><div class="ml">Rechazadas</div><div class="mv" id="m-i" style="color:var(--tdd)">—</div><div class="ms">requieren acción</div></div>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="ch"><span class="ct">Proyectos — avance y estado Sytex</span><span id="dash-sync-lbl" style="font-size:11px;color:var(--ts)"></span></div>
+            <div id="d-proy"><div class="empty"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando desde Google Sheets...</p></div></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="ct">Últimas actividades Sytex</span></div>
+            <div id="d-tar"><div class="empty"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div></div>
+          </div>
+        </div>
+
+        <!-- PROYECTOS -->
+        <div id="s-proyectos" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Proyectos</span><button class="btn bp" onclick="openM('proyecto')"><i class="ti ti-plus" style="font-size:13px"></i> Nuevo</button></div><div id="l-proy"><div class="empty"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div></div></div>
+        </div>
+
+        <!-- TAREAS -->
+        <div id="s-tareas" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Tareas</span><button class="btn bp" onclick="openM('tarea')"><i class="ti ti-plus" style="font-size:13px"></i> Nueva</button></div><div id="l-tar"><div class="empty"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div></div></div>
+        </div>
+
+        <!-- UBICACION -->
+        <div id="s-ubicacion" class="sec">
+          <div class="card">
+            <div class="ch"><span class="ct">Ubicación de sitio</span><button class="btn bp" onclick="openM('ubicacion')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div>
+            <div id="l-ubi">
+              <div class="ri"><div class="ico" style="background:var(--bgi);color:var(--tii)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">Bellocq — AR-01-BA-04903-25</div><div class="rs">BA01405 · Bellocq, Buenos Aires</div></div><div style="display:flex;gap:5px"><a href="https://maps.app.goo.gl/RPUy8vvUbqUn2o177" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/Bellocq+Buenos+Aires" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>
+              <div class="ri"><div class="ico" style="background:var(--bgs);color:var(--tss)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">Pereyra — AR-01-BA-05194-26</div><div class="rs">CF10029 · Pereyra, Buenos Aires</div></div><div style="display:flex;gap:5px"><a href="https://maps.app.goo.gl/rdxkkfvaPbcj1GoSA" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/Pereyra+Buenos+Aires" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>
+              <div class="ri"><div class="ico" style="background:var(--bgw);color:var(--tww)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">Gral. Las Heras — AR-01-BA-05067-25</div><div class="rs">Dr. Bertini y D.F. Sarmiento</div></div><div style="display:flex;gap:5px"><a href="https://maps.app.goo.gl/CRsWWJjUJXTsGPZP8" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/General+Las+Heras+Buenos+Aires" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>
+              <div class="ri"><div class="ico" style="background:var(--bgw);color:var(--tww)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">Uribelarrea — AR-01-BA-05090-25</div><div class="rs">Uribelarrea, Buenos Aires</div></div><div style="display:flex;gap:5px"><a href="https://maps.app.goo.gl/XmQmriVSCSRKkeaJ6" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/Uribelarrea+Buenos+Aires" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>
+              <div class="ri"><div class="ico" style="background:var(--bg2);color:var(--ts)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">Atalaya — AR-01-BA-05056-25</div><div class="rs">BA01468 · Atalaya, Buenos Aires</div></div><div style="display:flex;gap:5px"><a href="https://maps.app.goo.gl/Z8efn4ZQEndeAPZR6" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/Atalaya+Buenos+Aires" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>
+              <div id="l-ubi-extra"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRESUPUESTOS -->
+        <div id="s-presupuestos" class="sec">
+          <div style="font-size:12px;color:var(--ts);margin-bottom:12px">Importado de <strong style="color:var(--ti)">Proyectos_y_presupuestos.xlsx</strong></div>
+          <div class="card"><div class="ch"><span class="ct">Bellocq — 50m³ H25</span><a href="https://maps.app.goo.gl/RPUy8vvUbqUn2o177" target="_blank" class="btn" style="font-size:11px"><i class="ti ti-map-pin" style="font-size:12px"></i> Mapa</a></div><table class="ptbl"><thead><tr><th>Proveedor</th><th>$/m³</th><th>Flete</th><th>Total</th><th>Pago</th></tr></thead><tbody><tr><td>Horm. Pehuajó</td><td>$202.150</td><td>$752.000</td><td>$10.859.500</td><td>50%/50% 20-30d</td></tr><tr><td>Carlos Casares</td><td>$210.744</td><td>$931.500</td><td>$11.468.690</td><td>—</td></tr><tr style="background:var(--bgs)"><td><strong>CONCREMAX ✓</strong></td><td>$215.000</td><td>$0</td><td><strong>$10.750.000</strong></td><td>30/45/60</td></tr></tbody></table><div style="margin-top:8px;font-size:11px;color:var(--ts)">Lab. hormigón $800.000 + Lab. suelo $800.000 → <strong style="color:var(--ti)">Total: $12.350.000</strong></div></div>
+          <div class="card"><div class="ch"><span class="ct">Pereyra — 28m³ H25 (CF10029)</span><a href="https://maps.app.goo.gl/rdxkkfvaPbcj1GoSA" target="_blank" class="btn" style="font-size:11px"><i class="ti ti-map-pin" style="font-size:12px"></i> Mapa</a></div><table class="ptbl"><thead><tr><th>Proveedor</th><th>$/m³</th><th>Lab.</th><th>Total</th><th>Obs.</th></tr></thead><tbody><tr><td>Darom SA</td><td>—</td><td>—</td><td>—</td><td>Sin cotización</td></tr><tr><td>Kamix</td><td>$171.500</td><td>$350.000</td><td>$5.152.000</td><td>s/factura</td></tr><tr style="background:var(--bgs)"><td><strong>V+H ✓</strong></td><td>$165.000</td><td>propio</td><td><strong>$4.620.000</strong></td><td>s/factura</td></tr></tbody></table></div>
+          <div class="card"><div class="ch"><span class="ct">Gral. Las Heras — 38m³ H25</span><a href="https://maps.app.goo.gl/CRsWWJjUJXTsGPZP8" target="_blank" class="btn" style="font-size:11px"><i class="ti ti-map-pin" style="font-size:12px"></i> Mapa</a></div><table class="ptbl"><thead><tr><th>Proveedor</th><th>$/m³</th><th>Flete</th><th>Total</th><th>Obs.</th></tr></thead><tbody><tr><td>R. Cambiaso</td><td>$196.625</td><td>$0</td><td>$7.471.750</td><td>—</td></tr><tr style="background:var(--bgs)"><td><strong>HORMICRET ✓</strong></td><td>$167.500</td><td>$0</td><td><strong>$6.365.000</strong></td><td>Echeq 5%dto</td></tr><tr><td>CEAC</td><td>$205.450</td><td>$242.000</td><td>$8.049.100</td><td>—</td></tr></tbody></table><div style="margin-top:8px;font-size:11px;color:var(--ts)">Lab. hormigón $800.000 + Lab. suelo $800.000 → <strong style="color:var(--ti)">Total: $8.481.875</strong></div></div>
+          <div class="card"><div class="ch"><span class="ct">Uribelarrea — 38m³ H25</span><a href="https://maps.app.goo.gl/XmQmriVSCSRKkeaJ6" target="_blank" class="btn" style="font-size:11px"><i class="ti ti-map-pin" style="font-size:12px"></i> Mapa</a></div><table class="ptbl"><thead><tr><th>Proveedor</th><th>$/m³</th><th>Total</th><th>Obs.</th></tr></thead><tbody><tr style="background:var(--bgs)"><td><strong>HORMICRET ✓</strong></td><td>$167.500</td><td><strong>$6.365.000</strong></td><td>Sin factura</td></tr><tr><td>CEAC</td><td>$196.700</td><td>$7.474.600</td><td>10% ef.</td></tr></tbody></table></div>
+          <div class="card"><div class="ch"><span class="ct">Atalaya — 38m³ H25 (BA01468)</span><a href="https://maps.app.goo.gl/Z8efn4ZQEndeAPZR6" target="_blank" class="btn" style="font-size:11px"><i class="ti ti-map-pin" style="font-size:12px"></i> Mapa</a></div><table class="ptbl"><thead><tr><th>Proveedor</th><th>$/m³</th><th>Total</th></tr></thead><tbody><tr><td>Risso</td><td>$203.950</td><td>$7.750.100</td></tr><tr><td>HM3</td><td>—</td><td style="color:var(--tww)">Pendiente</td></tr></tbody></table></div>
+        </div>
+
+        <!-- REPORTES -->
+        <div id="s-reportes" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Reportar avance</span></div><div class="fg"><div class="ff"><label>Proyecto</label><select id="r-proj"><option>Bellocq AR-01-BA-04903-25</option><option>Pereyra AR-01-BA-05194-26</option><option>Las Heras AR-01-BA-05067-25</option><option>Uribelarrea AR-01-BA-05090-25</option><option>Atalaya AR-01-BA-05056-25</option></select></div><div class="ff"><label>Fecha</label><input type="date" id="r-fecha"></div><div class="ff"><label>Responsable</label><select id="r-resp"></select></div><div class="ff"><label>% avance</label><input type="number" id="r-pct" min="0" max="100" placeholder="75"></div><div class="ff fw"><label>Descripción</label><textarea id="r-desc" placeholder="Describí el trabajo realizado..."></textarea></div><div class="ff fw"><label>Materiales utilizados</label><textarea id="r-mat" placeholder="Ej: 4 bulones M16, 20m cable coaxial..."></textarea></div></div><button class="btn bp" onclick="saveToSheets('Reportes',getReporte)">Guardar reporte</button></div>
+          <div class="card"><div class="ch"><span class="ct">Historial de reportes</span><button class="btn" onclick="loadSection('Reportes','l-rep',renderReportes)"><i class="ti ti-refresh" style="font-size:13px"></i></button></div><div id="l-rep"><div class="empty"><i class="ti ti-chart-bar"></i><p>Cargando...</p></div></div></div>
+        </div>
+
+        <!-- INCIDENCIAS -->
+        <div id="s-incidencias" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Reportar incidencia</span></div><div class="fg"><div class="ff"><label>Proyecto</label><select id="i-proj"><option>Bellocq</option><option>Pereyra</option><option>Las Heras</option><option>Uribelarrea</option><option>Atalaya</option></select></div><div class="ff"><label>Prioridad</label><select id="i-prio"><option>Alta</option><option>Media</option><option>Baja</option></select></div><div class="ff fw"><label>Descripción</label><textarea id="i-desc" placeholder="Describí la incidencia..."></textarea></div></div><button class="btn bp" onclick="saveToSheets('Incidencias',getIncidencia)">Reportar</button></div>
+          <div class="card"><div class="ch"><span class="ct">Incidencias activas</span><button class="btn" onclick="loadSection('Incidencias','l-inc',renderIncidencias)"><i class="ti ti-refresh" style="font-size:13px"></i></button></div><div id="l-inc"><div class="empty"><i class="ti ti-circle-check"></i><p>Sin incidencias activas.</p></div></div></div>
+        </div>
+
+        <!-- CARGAR INFO -->
+        <div id="s-cargar" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Cargar información</span></div><div class="fg"><div class="ff"><label>Tipo</label><select id="c-tipo"><option>Avance de obra</option><option>Materiales</option><option>Fotografía</option><option>Medición técnica</option><option>Nota interna</option><option>Otro</option></select></div><div class="ff"><label>Proyecto</label><select id="c-proj"><option>Bellocq</option><option>Pereyra</option><option>Las Heras</option><option>Uribelarrea</option><option>Atalaya</option></select></div><div class="ff"><label>Fecha</label><input type="date" id="c-fecha"></div><div class="ff"><label>Responsable</label><select id="c-resp"></select></div><div class="ff fw"><label>Descripción / Notas</label><textarea id="c-desc" placeholder="Detallá la información..."></textarea></div></div><button class="btn bp" onclick="saveToSheets('Cargas',getCarga)">Guardar registro</button></div>
+          <div class="card"><div class="ch"><span class="ct">Registros recientes</span><button class="btn" onclick="loadSection('Cargas','l-car',renderCargas)"><i class="ti ti-refresh" style="font-size:13px"></i></button></div><div id="l-car"><div class="empty"><i class="ti ti-inbox"></i><p>Cargando...</p></div></div></div>
+        </div>
+
+        <!-- PROVEEDORES -->
+        <div id="s-proveedores" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Proveedores</span><button class="btn bp" onclick="openM('proveedor')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-prov" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div></div></div>
+        </div>
+
+        <!-- SITES -->
+        <div id="s-sites" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Contactos Sites</span><button class="btn bp" onclick="openM('site')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-sit" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-antenna"></i><p>Sin contactos de sites.</p></div></div></div>
+        </div>
+
+        <!-- SYTEX -->
+        <div id="s-sytex" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Usuarios Sytex</span><button class="btn bp" onclick="openM('sytex')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-syt" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-id-badge"></i><p>Sin usuarios Sytex.</p></div></div></div>
+        </div>
+
+        <!-- EQUIPO -->
+        <div id="s-equipo" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Miembros del equipo</span><button class="btn bp admin-only" onclick="openM('miembro')" style="display:none"><i class="ti ti-plus" style="font-size:13px"></i> Agregar miembro</button></div><div class="g3" id="l-equipo"></div></div>
+        </div>
+
+        <!-- ADMIN -->
+        <div id="s-admin" class="sec">
+          <div class="card" style="margin-bottom:12px">
+            <div class="ch"><span class="ct"><i class="ti ti-users" style="font-size:14px;vertical-align:-2px"></i> Gestión de usuarios</span><button class="btn bp" onclick="openM('miembro')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div>
+            <div id="l-admin-team"></div>
+          </div>
+        </div>
+
+        <!-- ASISTENTE IA -->
+        <div id="s-asistente" class="sec">
+          <div class="card">
+            <div class="ch"><span class="ct">Asistente Técnico IA</span><span class="pill pg" style="font-size:10px">En línea</span></div>
+            <div style="background:var(--bg2);border-radius:var(--r);padding:9px 13px;font-size:12px;color:var(--ts);margin-bottom:13px">Especialista en normas IRAM · ENACOM · ITU-R · EIA/TIA-222 · Instalación de antenas · Seguridad en altura · Hormigón H25 y cimentaciones</div>
+            <div class="aichat" id="ai-chat"></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+              <button class="btn" style="font-size:11px" onclick="askAI('Normas IRAM para zapatas de torres de telecomunicaciones')">Normas zapatas</button>
+              <button class="btn" style="font-size:11px" onclick="askAI('Ensayos de hormigón H25: probetas y cono de Abrams')">Ensayos H25</button>
+              <button class="btn" style="font-size:11px" onclick="askAI('Protocolos de seguridad en trabajo en altura para antenas')">Seguridad en altura</button>
+            </div>
+            <div class="airow"><input type="text" id="ai-in" placeholder="Consultá sobre normas, instalaciones, hormigón..."><button class="btn bp" onclick="sendAI()"><i class="ti ti-send" style="font-size:13px"></i></button></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mwrap" id="mwrap">
+  <div class="mbox">
+    <button class="mx" onclick="closeM()"><i class="ti ti-x"></i></button>
+    <div id="mcont"></div>
+  </div>
+</div>
+
+<!-- SHARE -->
+<div class="shov" id="shov">
+  <div class="shbox">
+    <button class="mx" onclick="closeShare()"><i class="ti ti-x"></i></button>
+    <div style="font-size:15px;font-weight:500;margin-bottom:5px">Compartir portal</div>
+    <div style="font-size:12px;color:var(--ts);margin-bottom:16px">El link da acceso como invitado (solo lectura).</div>
+    <div style="display:flex;gap:7px"><input id="slink" readonly style="flex:1;padding:8px 11px;border-radius:var(--r);border:.5px solid var(--bom);background:var(--bg2);font-size:11px;font-family:monospace;color:var(--ti)"><button class="btn bp" onclick="copyShare()"><i class="ti ti-copy" style="font-size:13px"></i> Copiar</button></div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:var(--rl);font-size:13px;z-index:999;transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none"></div>
+<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbzljxOOlGAm3T9PcB8WbDLWHXJosDlMSX6HF0p4jH0QgDBXnI41v4Cl6ZOCvvnQGsnjGw/exec';
+
+// ══ USUARIOS ══
+let USERS={
+  meiningis:    {pass:'5Dejunio', name:'Meiningis',            fullname:'Meiningis',              initials:'ME',role:'Administrador',color:'info',   isAdmin:true},
+  leos:         {pass:'noya2026', name:'Leonardo Straquadaini',fullname:'Leonardo Straquadaini',  initials:'LS',role:'Miembro',      color:'success',isAdmin:false},
+  jpinochi:     {pass:'noya2026', name:'Julieta Pinochi',      fullname:'Julieta Pinochi',        initials:'JP',role:'Miembro',      color:'warning',isAdmin:false},
+  invitado:     {pass:'invitado', name:'Invitado',              fullname:'Invitado',               initials:'IV',role:'Solo lectura', color:'gray',   isAdmin:false,readOnly:true}
+};
+let CU=null;
+
+// ══ SHEETS ══
+async function sheetsGet(sheet){
+  try{const r=await fetch(API+'?sheet='+encodeURIComponent(sheet));if(!r.ok)return{error:'HTTP '+r.status};return await r.json()}catch(e){return{error:e.message}}
+}
+async function sheetsPost(body){
+  try{await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});return{ok:true}}catch(e){return{error:e.message}}
+}
+
+// ══ LOGIN ══
+function doLogin(){
+  const u=document.getElementById('lu').value.trim().toLowerCase();
+  const err=document.getElementById('lerr');
+  if(USERS[u]&&!USERS[u].readOnly){
+    err.classList.remove('show');
+    CU={username:u,...USERS[u]};
+    setup();
+    document.getElementById('login-screen').classList.remove('active');
+    document.getElementById('portal-screen').classList.add('active');
+  } else {err.classList.add('show');}
+}
+function doLogout(){
+  CU=null;
+  const lu=document.getElementById('lu');if(lu)lu.value='';
+  const err=document.getElementById('lerr');if(err)err.classList.remove('show');
+  document.getElementById('portal-screen').classList.remove('active');
+  document.getElementById('login-screen').classList.add('active');
+  go('dashboard',null);
+  document.querySelectorAll('.ni').forEach((n,i)=>{n.classList.remove('on');if(i===0)n.classList.add('on')});
+}
+
+// ══ SETUP ══
+function setup(){
+  const u=CU;
+  const av=document.getElementById('sf-av');
+  av.textContent=u.initials;
+  const bgMap={info:'var(--bgi)',success:'var(--bgs)',warning:'var(--bgw)',danger:'var(--bgd)',gray:'var(--bg2)'};
+  const tcMap={info:'var(--tii)',success:'var(--tss)',warning:'var(--tww)',danger:'var(--tdd)',gray:'var(--ts)'};
+  av.style.background=bgMap[u.color]||'var(--bg2)';
+  av.style.color=tcMap[u.color]||'var(--ts)';
+  document.getElementById('sf-name').textContent=u.fullname||u.name;
+  document.getElementById('sf-role').textContent=u.role;
+  const b=document.getElementById('tbadge');
+  if(u.isAdmin){b.textContent='Admin';b.style.background='var(--bgi)';b.style.color='var(--tii)'}
+  else if(u.readOnly){b.textContent='Invitado';b.style.background='var(--bg2)';b.style.color='var(--ts)'}
+  else{b.textContent='Miembro';b.style.background='var(--bg2)';b.style.color='var(--ts)'}
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=u.isAdmin?'flex':'none');
+  const now=new Date();
+  const diaSemana=now.toLocaleDateString('es-AR',{weekday:'long'});
+  const fecha=now.toLocaleDateString('es-AR',{day:'numeric',month:'long'});
+  document.getElementById('wel').innerHTML=`¡Bienvenido/a, <strong style="color:var(--ti)">${u.fullname||u.name}</strong>! ${diaSemana.charAt(0).toUpperCase()+diaSemana.slice(1)}, ${fecha}.`;
+  const today=now.toISOString().split('T')[0];
+  document.querySelectorAll('input[type=date]').forEach(i=>i.value=today);
+  fillRespSelects();renderEquipo();loadDashboard();
+  document.getElementById('ai-in').onkeydown=e=>{if(e.key==='Enter')sendAI()};
+  document.getElementById('ai-chat').innerHTML=aimsg('bot','¡Hola, '+(u.fullname||u.name)+'! Estoy conectado con Google Sheets. ¿En qué te ayudo?');
+  if(u.readOnly)document.querySelectorAll('.bp').forEach(b=>{if(['Nuevo','Agregar','Guardar','Reportar','Nueva'].some(k=>b.textContent.trim().startsWith(k)))b.style.display='none'});
+}
+
+function fillRespSelects(){
+  ['r-resp','c-resp'].forEach(id=>{
+    const s=document.getElementById(id);if(!s)return;s.innerHTML='';
+    Object.entries(USERS).filter(([k])=>k!=='invitado'&&!USERS[k].readOnly).forEach(([k,u])=>{
+      const o=document.createElement('option');o.value=k;
+      o.textContent=(u.fullname||u.name)+(k===CU?.username?' (yo)':'');
+      if(k===CU?.username)o.selected=true;
+      s.appendChild(o);
+    });
+  });
+}
+
+// ══ NAVEGACIÓN ══
+const TITLES={dashboard:'Dashboard',proyectos:'Proyectos',tareas:'Tareas',ubicacion:'Ubicación de sitio',presupuestos:'Presupuestos',reportes:'Reportes',incidencias:'Incidencias',cargar:'Cargar información',proveedores:'Proveedores',sites:'Contactos Sites',sytex:'Usuarios Sytex',equipo:'Equipo',admin:'Administración',asistente:'Asistente IA'};
+function go(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  const s=document.getElementById('s-'+id);if(s)s.classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById('ttitle').textContent=TITLES[id]||id;
+  if(id==='proyectos')loadSection('Proyectos','l-proy',renderProyectos);
+  if(id==='tareas')loadSection('Tareas','l-tar',renderTareas);
+  if(id==='reportes')loadSection('Reportes','l-rep',renderReportes);
+  if(id==='incidencias')loadSection('Incidencias','l-inc',renderIncidencias);
+  if(id==='cargar')loadSection('Cargas','l-car',renderCargas);
+  if(id==='proveedores')loadSection('Proveedores','l-prov',renderProveedores);
+  if(id==='sites')loadSection('Contactos Sites','l-sit',renderSites);
+  if(id==='sytex')loadSection('Sytex','l-syt',renderSytex);
+  if(id==='admin')renderAdminPanel();
+}
+
+// ══ SHEETS LOAD ══
+async function loadSection(sheet,elId,renderFn){
+  const el=document.getElementById(elId);
+  if(el)el.innerHTML='<div class="empty"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div>';
+  try{
+    const data=await sheetsGet(sheet);
+    if(data.error){el.innerHTML='<div class="empty"><i class="ti ti-wifi-off"></i><p>Error: '+data.error+'</p></div>';return}
+    renderFn(Array.isArray(data)?data:[],elId);
+  }catch(e){if(el)el.innerHTML='<div class="empty"><i class="ti ti-wifi-off"></i><p>Sin conexión</p></div>';}
+}
+
+async function loadDashboard(){
+  const sb=document.getElementById('sync-bar');sb.style.display='flex';
+  try{
+    const [tareas,incidencias,cargas]=await Promise.all([sheetsGet('Tareas'),sheetsGet('Incidencias'),sheetsGet('Cargas')]);
+    sb.style.display='none';
+    const ta=Array.isArray(tareas)?tareas:[];
+    const ca2=Array.isArray(cargas)?cargas:[];
+    const allTasks=[...ta,...ca2];
+    const PROYECTOS=[
+      {codigo:'AR-01-BA-04903-25',nombre:'Bellocq',sitio:'BA01405',mapa:'https://maps.app.goo.gl/RPUy8vvUbqUn2o177'},
+      {codigo:'AR-01-BA-05194-26',nombre:'Pereyra Iraola',sitio:'CF10029',mapa:'https://maps.app.goo.gl/rdxkkfvaPbcj1GoSA'},
+      {codigo:'AR-01-BA-05067-25',nombre:'Gral. Las Heras',sitio:'',mapa:'https://maps.app.goo.gl/CRsWWJjUJXTsGPZP8'},
+      {codigo:'AR-01-BA-05090-25',nombre:'Uribelarrea Acceso',sitio:'',mapa:'https://maps.app.goo.gl/XmQmriVSCSRKkeaJ6'},
+      {codigo:'AR-01-BA-05056-25',nombre:'Atalaya',sitio:'BA01468',mapa:'https://maps.app.goo.gl/Z8efn4ZQEndeAPZR6'},
+    ];
+    function calcProy(codigo){
+      const tp=allTasks.filter(t=>{const pr=String(col(t,'proyecto')||'');const si=String(col(t,'sitio')||'');return pr.includes(codigo)||si.includes(codigo);});
+      if(!tp.length)return{pct:0,env:0,proc:0,rech:0,ab:0,total:0,estado:'Sin datos'};
+      const env=tp.filter(t=>['Enviado','Aprobado','Completada'].includes(col(t,'estado')||'')).length;
+      const proc=tp.filter(t=>['En proceso','En revisión'].includes(col(t,'estado')||'')).length;
+      const rech=tp.filter(t=>(col(t,'estado')||'').includes('Rechazado')).length;
+      const ab=tp.filter(t=>['Abierta','Abierto'].includes(col(t,'estado')||'')).length;
+      const total=tp.length;
+      const pct=Math.round((env+proc*0.5)/total*100);
+      const estado=rech>0?'Rechazado':env===total?'Completado':proc>0||env>0?'En proceso':'Abierta';
+      return{pct,env,proc,rech,ab,total,estado};
+    }
+    const EPILL={'En proceso':'pi','Rechazado':'pr','Completado':'pg','Abierta':'pa','Sin datos':'ps'};
+    const ECOLOR={'En proceso':'var(--tii)','Rechazado':'var(--tdd)','Completado':'var(--tss)','Abierta':'var(--tww)','Sin datos':'var(--ts)'};
+    const EBG={'En proceso':'var(--blue)','Rechazado':'var(--tdd)','Completado':'var(--tss)','Abierta':'var(--tww)','Sin datos':'var(--ts)'};
+    const totRech=allTasks.filter(t=>(col(t,'estado')||'').includes('Rechazado')).length;
+    const totAb=allTasks.filter(t=>['Abierta','Abierto'].includes(col(t,'estado')||'')).length;
+    document.getElementById('m-p').textContent=PROYECTOS.length;
+    document.getElementById('m-t').textContent=totAb;
+    document.getElementById('m-i').textContent=totRech;
+    const alertEl=document.getElementById('alert-rech');
+    if(totRech>0&&alertEl){
+      const rechProj=PROYECTOS.filter(p=>calcProy(p.codigo).rech>0).map(p=>p.nombre).join(', ');
+      document.getElementById('alert-rech-txt').innerHTML=`<strong>${totRech} tarea${totRech>1?'s':''} rechazada${totRech>1?'s':''}</strong> en: ${rechProj}. Requiere atención.`;
+      alertEl.style.display='flex';
+    }
+    const lbl=document.getElementById('dash-sync-lbl');
+    if(lbl)lbl.textContent='Actualizado '+new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    const dp=document.getElementById('d-proy');
+    dp.innerHTML=PROYECTOS.map(p=>{
+      const av=calcProy(p.codigo);
+      const pill=EPILL[av.estado]||'ps';
+      const barColor=EBG[av.estado]||'var(--blue)';
+      const txtColor=ECOLOR[av.estado]||'var(--ts)';
+      let chips='';
+      if(av.total>0){
+        if(av.env>0)chips+=`<span style="background:var(--bgs);color:var(--tss);border-radius:6px;padding:1px 6px;font-size:10px;margin-right:3px">${av.env} ✓ enviado${av.env>1?'s':''}</span>`;
+        if(av.proc>0)chips+=`<span style="background:var(--bgi);color:var(--tii);border-radius:6px;padding:1px 6px;font-size:10px;margin-right:3px">${av.proc} 🔄 proceso</span>`;
+        if(av.ab>0)chips+=`<span style="background:var(--bgw);color:var(--tww);border-radius:6px;padding:1px 6px;font-size:10px;margin-right:3px">${av.ab} ⏳ abierta${av.ab>1?'s':''}</span>`;
+        if(av.rech>0)chips+=`<span style="background:var(--bgd);color:var(--tdd);border-radius:6px;padding:1px 6px;font-size:10px;margin-right:3px">${av.rech} ✗ rechazada${av.rech>1?'s':''}</span>`;
+      } else {chips=`<span style="color:var(--tt);font-size:10px">Sin tareas Sytex cargadas</span>`;}
+      return`<div style="padding:10px 0;border-bottom:0.5px solid var(--bo)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;border-radius:var(--r);background:var(--bgi);color:var(--tii);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px"><i class="ti ti-antenna"></i></div>
+            <div><div style="font-size:13px;font-weight:500">${p.nombre} ${p.sitio?'<span style="font-size:11px;color:var(--ts);font-weight:400">· '+p.sitio+'</span>':''}</div><div style="font-size:11px;color:var(--ts)">${p.codigo}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <span class="pill ${pill}" style="font-size:11px">${av.estado}</span>
+            <span style="font-size:13px;font-weight:500;color:${txtColor}">${av.pct}%</span>
+            <a href="${p.mapa}" target="_blank" style="font-size:11px;color:var(--tii);text-decoration:none;background:var(--bgi);padding:2px 7px;border-radius:6px"><i class="ti ti-map-pin" style="font-size:11px"></i></a>
+          </div>
+        </div>
+        <div style="height:5px;border-radius:3px;background:var(--bg2);overflow:hidden;margin-bottom:6px"><div style="height:100%;border-radius:3px;background:${barColor};width:${av.pct}%;transition:width .5s"></div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">${chips}</div>
+      </div>`;
+    }).join('');
+    const dt=document.getElementById('d-tar');
+    const recientes=[...allTasks].reverse().slice(0,6);
+    const stColor={'Enviado':'var(--tss)','Aprobado':'var(--tss)','En proceso':'var(--tii)','Rechazado':'var(--tdd)','Rechazado ⚠️':'var(--tdd)','Abierta':'var(--tww)','Abierto':'var(--tww)'};
+    if(!recientes.length){dt.innerHTML='<div class="empty"><i class="ti ti-checklist"></i><p>Sin actividades aún</p></div>';}
+    else{dt.innerHTML=recientes.map(t=>{
+      const desc=col(t,'desc')||col(t,'tipo')||'';const est=col(t,'estado')||'';
+      const sitio=col(t,'sitio')||col(t,'proyecto')||'';const cod=col(t,'codigo_sytex')||'';
+      const clr=stColor[est]||'var(--ts)';
+      return`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--bo)">
+        <div style="width:8px;height:8px;border-radius:50%;background:${clr};flex-shrink:0;margin-top:5px"></div>
+        <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${desc}</div><div style="font-size:11px;color:var(--ts);margin-top:1px">${String(sitio).slice(0,35)} ${cod?'· '+cod:''}</div></div>
+        <span style="font-size:10px;font-weight:500;color:${clr};white-space:nowrap;flex-shrink:0">${est}</span>
+      </div>`;
+    }).join('');}
+  }catch(e){
+    sb.style.display='none';
+    document.getElementById('m-p').textContent='—';document.getElementById('m-t').textContent='—';document.getElementById('m-i').textContent='—';
+    document.getElementById('d-proy').innerHTML='<div class="empty"><i class="ti ti-wifi-off"></i><p>Error al cargar — verificá la conexión con Sheets</p></div>';
+  }
+}
+
+// ══ GUARDAR EN SHEETS ══
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+function v(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function selText(id){const s=document.getElementById(id);return s?s.options[s.selectedIndex]?.text||'':''}
+function getReporte(){if(!v('r-desc')){toast('Ingresá descripción');return null}return{id:uid(),proyecto:selText('r-proj'),responsable:selText('r-resp'),pct:v('r-pct'),desc:v('r-desc'),materiales:v('r-mat'),fecha:v('r-fecha'),usuario:CU?.fullname||CU?.name}}
+function getIncidencia(){if(!v('i-desc')){toast('Describí la incidencia');return null}return{id:uid(),proyecto:selText('i-proj'),prioridad:v('i-prio'),desc:v('i-desc'),estado:'Abierta',fecha:new Date().toLocaleDateString('es-AR'),usuario:CU?.fullname||CU?.name}}
+function getCarga(){if(!v('c-desc')){toast('Ingresá descripción');return null}return{id:uid(),tipo:v('c-tipo'),proyecto:selText('c-proj'),responsable:selText('c-resp'),desc:v('c-desc'),fecha:v('c-fecha'),usuario:CU?.fullname||CU?.name}}
+
+async function saveToSheets(sheet,getDataFn){
+  const data=getDataFn();if(!data)return;
+  const headers=Object.keys(data);const row=Object.values(data);
+  const btn=event.target;btn.disabled=true;btn.textContent='Guardando...';
+  try{
+    const res=await sheetsPost({action:'append',sheet,headers,row});
+    if(res.ok){toast('✓ Guardado en Google Sheets');document.querySelectorAll('#s-'+sheet.toLowerCase()+' textarea,#s-'+sheet.toLowerCase()+' input[type=text],#s-'+sheet.toLowerCase()+' input[type=number]').forEach(i=>i.value='');const maps={Reportes:['l-rep',renderReportes],Incidencias:['l-inc',renderIncidencias],Cargas:['l-car',renderCargas]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
+    else toast('Error: '+(res.error||'desconocido'));
+  }catch(e){toast('Error de conexión')}
+  btn.disabled=false;btn.textContent='Guardar';
+}
+
+// ══ MODALES ══
+const MODS={
+  proyecto:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Nuevo proyecto</div>
+    <div class="fg"><div class="ff fw"><label>Nombre</label><input id="m-nom" placeholder="ej. Torre Zárate Norte"></div>
+    <div class="ff"><label>Código</label><input id="m-cod" placeholder="ej. CF10037"></div>
+    <div class="ff"><label>Responsable</label><input id="m-res"></div>
+    <div class="ff"><label>Estado</label><select id="m-est"><option>Pendiente</option><option>Iniciando</option><option>En ejecución</option><option>Finalizado</option></select></div>
+    <div class="ff"><label>% avance</label><input type="number" id="m-av" min="0" max="100" value="0"></div>
+    <div class="ff"><label>Fecha inicio</label><input type="date" id="m-ini"></div>
+    <div class="ff fw"><label>Descripción</label><textarea id="m-des"></textarea></div></div>
+    <button class="btn bp" onclick="saveModalToSheets('Proyectos',['id','nombre','codigo','responsable','estado','avance','inicio','desc'],[uid(),v('m-nom'),v('m-cod'),v('m-res'),v('m-est'),v('m-av'),v('m-ini'),v('m-des')])">Guardar proyecto</button>`,
+
+  tarea:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Nueva tarea</div>
+    <div class="fg"><div class="ff fw"><label>Descripción</label><input id="m-td" placeholder="ej. Verificar orientación antena"></div>
+    <div class="ff"><label>Asignado a</label><select id="m-ta">${Object.entries(USERS).filter(([k])=>k!=='invitado'&&!USERS[k].readOnly).map(([k,u])=>`<option value="${k}">${u.fullname||u.name}</option>`).join('')}</select></div>
+    <div class="ff"><label>Vencimiento</label><input type="date" id="m-tv"></div>
+    <div class="ff"><label>Prioridad</label><select id="m-tpr"><option>Alta</option><option>Media</option><option>Baja</option></select></div></div>
+    <button class="btn bp" onclick="saveModalToSheets('Tareas',['id','desc','asignado','venc','prioridad','done','fecha'],[uid(),v('m-td'),selText('m-ta'),v('m-tv'),v('m-tpr'),'false',new Date().toLocaleDateString('es-AR')])">Guardar tarea</button>`,
+
+  proveedor:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Nuevo proveedor</div>
+    <div class="fg"><div class="ff fw"><label>Empresa / Nombre</label><input id="m-pn"></div>
+    <div class="ff"><label>Rubro</label><input id="m-pr"></div><div class="ff"><label>Contacto</label><input id="m-pc"></div>
+    <div class="ff"><label>Teléfono</label><input id="m-pt"></div>
+    <div class="ff fw"><label>Email</label><input type="email" id="m-pe"></div>
+    <div class="ff fw"><label>Notas</label><textarea id="m-pno"></textarea></div></div>
+    <button class="btn bp" onclick="saveModalToSheets('Proveedores',['id','nombre','rubro','contacto','tel','email','nota'],[uid(),v('m-pn'),v('m-pr'),v('m-pc'),v('m-pt'),v('m-pe'),v('m-pno')])">Guardar proveedor</button>`,
+
+  site:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Contacto de Site</div>
+    <div class="fg"><div class="ff fw"><label>Nombre</label><input id="m-sn"></div>
+    <div class="ff"><label>Empresa</label><input id="m-se"></div><div class="ff"><label>Rol</label><input id="m-sr"></div>
+    <div class="ff"><label>Teléfono</label><input id="m-st"></div><div class="ff"><label>Email</label><input type="email" id="m-sm"></div>
+    <div class="ff fw"><label>Sitio relacionado</label><input id="m-ss"></div></div>
+    <button class="btn bp" onclick="saveModalToSheets('Contactos Sites',['id','nombre','empresa','rol','tel','email','sitio'],[uid(),v('m-sn'),v('m-se'),v('m-sr'),v('m-st'),v('m-sm'),v('m-ss')])">Guardar contacto</button>`,
+
+  sytex:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Usuario Sytex</div>
+    <div class="fg"><div class="ff fw"><label>Nombre completo</label><input id="m-xn"></div>
+    <div class="ff"><label>Usuario Sytex</label><input id="m-xu"></div>
+    <div class="ff"><label>Perfil</label><select id="m-xp"><option>Administrador</option><option>Técnico</option><option>Supervisor</option><option>Auditor</option></select></div>
+    <div class="ff"><label>Teléfono</label><input id="m-xt"></div>
+    <div class="ff fw"><label>Email</label><input type="email" id="m-xm"></div>
+    <div class="ff fw"><label>Notas</label><textarea id="m-xno"></textarea></div></div>
+    <button class="btn bp" onclick="saveModalToSheets('Sytex',['id','nombre','usuario','perfil','tel','email','nota'],[uid(),v('m-xn'),v('m-xu'),v('m-xp'),v('m-xt'),v('m-xm'),v('m-xno')])">Guardar usuario</button>`,
+
+  ubicacion:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Agregar ubicación</div>
+    <div class="fg"><div class="ff fw"><label>Nombre del sitio</label><input id="m-un"></div>
+    <div class="ff fw"><label>Dirección</label><input id="m-ud"></div>
+    <div class="ff"><label>Latitud</label><input id="m-ula"></div><div class="ff"><label>Longitud</label><input id="m-ulo"></div>
+    <div class="ff fw"><label>Notas</label><textarea id="m-uno"></textarea></div></div>
+    <button class="btn bp" onclick="addUbicacionLocal()">Guardar ubicación</button>`,
+
+  miembro:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Agregar miembro</div>
+    <div class="ff"><label>Nombre completo</label><input id="m-mn" placeholder="ej. Juan Martínez"></div>
+    <div class="ff"><label>Usuario (para login)</label><input id="m-mu" placeholder="ej. jmartinez" style="text-transform:lowercase"></div>
+    <div class="ff"><label>Rol</label><input id="m-mr" placeholder="ej. Técnico instalador"></div>
+    <div class="ff"><label>Color</label><select id="m-mc"><option value="info">Azul</option><option value="success">Verde</option><option value="warning">Amarillo</option><option value="danger">Rojo</option></select></div>
+    <button class="btn bp" style="margin-top:4px" onclick="saveMiembro()">Agregar miembro</button>`,
+
+  editarUsuario:(username)=>{
+    const u=USERS[username];
+    const esAdmin=username==='meiningis';
+    return`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Editar usuario</div>
+    <div style="background:var(--bg2);border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--ts);margin-bottom:14px">
+      <i class="ti ti-user" style="font-size:13px;vertical-align:-2px"></i> Usuario actual: <strong style="font-family:monospace;color:var(--ti)">${username}</strong>
+    </div>
+    <div class="ff"><label>Nombre de usuario (login)</label>
+      <input id="eu-username" value="${username}" placeholder="ej. leos" style="text-transform:lowercase" ${esAdmin?'readonly style="background:var(--bg2);color:var(--ts);text-transform:lowercase"':''}>
+      ${esAdmin?'<div style="font-size:11px;color:var(--tt);margin-top:3px">El usuario administrador no puede cambiarse.</div>':'<div style="font-size:11px;color:var(--ts);margin-top:3px">Solo letras y números, sin espacios ni caracteres especiales.</div>'}
+    </div>
+    <div class="ff"><label>Nombre completo</label><input id="eu-name" value="${u.fullname||u.name}" placeholder="Nombre completo"></div>
+    <div class="ff"><label>Rol / Cargo</label><input id="eu-role" value="${u.role||''}" placeholder="ej. Técnico instalador"></div>
+    <div class="ff"><label>Email (opcional)</label><input type="email" id="eu-email" value="${u.email||''}" placeholder="ej. usuario@noya.com.ar"></div>
+    <div class="ff"><label>Teléfono (opcional)</label><input id="eu-tel" value="${u.tel||''}" placeholder="ej. 11-4321-5678"></div>
+    <div class="ff"><label>Color de identificación</label>
+      <select id="eu-color">
+        <option value="info" ${u.color==='info'?'selected':''}>Azul</option>
+        <option value="success" ${u.color==='success'?'selected':''}>Verde</option>
+        <option value="warning" ${u.color==='warning'?'selected':''}>Amarillo</option>
+        <option value="danger" ${u.color==='danger'?'selected':''}>Rojo</option>
+      </select>
+    </div>
+    <div style="border-top:.5px solid var(--bo);margin:14px 0;padding-top:14px">
+      <div style="font-size:12px;color:var(--ts);margin-bottom:8px"><i class="ti ti-lock" style="font-size:13px;vertical-align:-2px"></i> Cambiar contraseña (dejar vacío para no cambiar)</div>
+      <div class="ff"><label>Nueva contraseña</label><input type="password" id="eu-pass" placeholder="Nueva contraseña (mín. 4 caracteres)"></div>
+    </div>
+    <button class="btn bp" style="width:100%" onclick="guardarEdicionUsuario('${username}')">Guardar cambios</button>`;
+  }
+};
+
+function guardarEdicionUsuario(username){
+  const nuevoUsername=document.getElementById('eu-username').value.trim().toLowerCase();
+  const nombre=v('eu-name');const rol=v('eu-role');
+  const email=v('eu-email');const tel=v('eu-tel');
+  const color=document.getElementById('eu-color').value;
+  const pass=v('eu-pass');
+
+  if(!nombre){toast('El nombre es requerido');return}
+  if(!nuevoUsername){toast('El usuario es requerido');return}
+
+  // Validar formato de usuario
+  if(!/^[a-z0-9_]+$/.test(nuevoUsername)){toast('El usuario solo puede tener letras minúsculas, números y guiones bajos');return}
+
+  // Verificar si el nuevo username ya existe (y no es el mismo)
+  if(nuevoUsername!==username && USERS[nuevoUsername]){toast('Ese nombre de usuario ya existe');return}
+
+  // Si cambió el username, mover el objeto
+  if(nuevoUsername!==username && username!=='meiningis'){
+    USERS[nuevoUsername]={...USERS[username]};
+    delete USERS[username];
+    // Si el usuario actual es el que se editó, actualizar CU
+    if(CU&&CU.username===username){CU.username=nuevoUsername;}
+  }
+
+  const key=nuevoUsername!==username&&username!=='meiningis'?nuevoUsername:username;
+  USERS[key].fullname=nombre;
+  USERS[key].name=nombre;
+  USERS[key].initials=nombre.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  USERS[key].role=rol||USERS[key].role;
+  USERS[key].email=email;
+  USERS[key].tel=tel;
+  USERS[key].color=color;
+  if(pass&&pass.length>=4) USERS[key].pass=pass;
+  else if(pass&&pass.length>0&&pass.length<4){toast('La contraseña debe tener al menos 4 caracteres');return}
+
+  closeM();
+  renderEquipo();
+  renderAdminPanel();
+  fillRespSelects();
+
+  // Actualizar sidebar si es el usuario actual
+  if(CU&&(CU.username===key||CU.username===username)){
+    CU={...CU,...USERS[key],username:key};
+    document.getElementById('sf-name').textContent=USERS[key].fullname||USERS[key].name;
+    document.getElementById('sf-role').textContent=USERS[key].role;
+  }
+  toast('Usuario actualizado ✓'+(nuevoUsername!==username&&username!=='meiningis'?' (nuevo login: '+nuevoUsername+')':''));
+}
+
+function openM(id,arg){
+  const fn=MODS[id];if(!fn)return;
+  document.getElementById('mcont').innerHTML=typeof arg!=='undefined'?fn(arg):fn();
+  document.getElementById('mwrap').classList.add('open');
+  const today=new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.mbox input[type=date]').forEach(i=>i.value=today);
+}
+function closeM(){document.getElementById('mwrap').classList.remove('open')}
+document.getElementById('mwrap').addEventListener('click',e=>{if(e.target===document.getElementById('mwrap'))closeM()});
+
+async function saveModalToSheets(sheet,headers,row){
+  const first=row[1];if(!first){toast('Completá los campos obligatorios');return}
+  const btn=document.querySelector('.mbox .bp');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
+  try{
+    const res=await sheetsPost({action:'append',sheet,headers,row});
+    if(res.ok){toast('✓ Guardado');closeM();const maps={Proyectos:['l-proy',renderProyectos],Tareas:['l-tar',renderTareas],Proveedores:['l-prov',renderProveedores],'Contactos Sites':['l-sit',renderSites],Sytex:['l-syt',renderSytex]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
+    else toast('Error: '+(res.error||'desconocido'));
+  }catch(e){toast('Error de conexión')}
+  if(btn){btn.disabled=false;btn.textContent='Guardar';}
+}
+
+function addUbicacionLocal(){
+  const n=v('m-un'),d=v('m-ud');if(!n||!d){toast('Nombre y dirección requeridos');return}
+  const q=encodeURIComponent(v('m-ula')&&v('m-ulo')?v('m-ula')+','+v('m-ulo'):d);
+  document.getElementById('l-ubi-extra').innerHTML+=`<div class="ri"><div class="ico" style="background:var(--bg2);color:var(--ts)"><i class="ti ti-map-pin"></i></div><div class="rin"><div class="rt">${n}</div><div class="rs">${d}</div></div><div style="display:flex;gap:5px"><a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" class="btn" style="font-size:11px">Maps</a><a href="https://earth.google.com/web/search/${q}" target="_blank" class="btn" style="font-size:11px;background:var(--bgs);color:var(--tss);border-color:var(--tss)">Earth</a></div></div>`;
+  toast('Ubicación agregada');closeM();
+}
+
+function saveMiembro(){
+  const n=v('m-mn'),u=v('m-mu').toLowerCase(),rol=v('m-mr');
+  if(!n||!u){toast('Completá nombre y usuario');return}
+  if(USERS[u]){toast('Ese usuario ya existe');return}
+  USERS[u]={pass:'noya2026',name:n,fullname:n,initials:n.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase(),role:rol||'Miembro',color:v('m-mc')||'success',isAdmin:false};
+  closeM();renderEquipo();renderAdminPanel();fillRespSelects();toast('Miembro '+n+' agregado ✓ (contraseña: noya2026)');
+}
+
+function delMiembro(username){
+  if(username==='meiningis'){toast('No se puede eliminar al administrador');return}
+  if(!confirm('¿Eliminar a '+(USERS[username]?.fullname||USERS[username]?.name)+'?'))return;
+  delete USERS[username];renderEquipo();renderAdminPanel();fillRespSelects();toast('Miembro eliminado');
+}
+
+// ══ RENDERS ══
+function col(row,key){if(row[key]!==undefined)return row[key];const k2=key.charAt(0).toUpperCase()+key.slice(1);return row[k2]!==undefined?row[k2]:''}
+function ppill(p){return{Alta:'pr',Media:'pa',Baja:'ps'}[p]||'ps'}
+function epill(e){return{Pendiente:'ps',Iniciando:'pa','En ejecución':'pi',Finalizado:'pg'}[e]||'ps'}
+function es(icon,txt){return`<div class="empty"><i class="ti ${icon}"></i><p>${txt}</p></div>`}
+
+function renderProyectos(data,elId){
+  const el=document.getElementById(elId||'l-proy');
+  if(!data.length){el.innerHTML=es('ti-folder-off','Sin proyectos aún.');return}
+  el.innerHTML=data.map(p=>`<div class="ri"><div class="ico" style="background:var(--bgi);color:var(--tii)"><i class="ti ti-antenna"></i></div><div class="rin"><div class="rt">${col(p,'codigo')?'['+col(p,'codigo')+'] ':''} ${col(p,'nombre')}</div><div class="rs">${col(p,'responsable')||''} ${col(p,'inicio')?'· Inicio: '+col(p,'inicio'):''}</div><div class="pb"><div class="pf" style="width:${col(p,'avance')||0}%;background:var(--blue)"></div></div></div><span class="pill ${epill(col(p,'estado'))}">${col(p,'avance')||0}%</span></div>`).join('');
+}
+function renderTareas(data,elId){
+  const el=document.getElementById(elId||'l-tar');
+  if(!data.length){el.innerHTML=es('ti-checklist','Sin tareas registradas.');return}
+  el.innerHTML=data.map(t=>`<div class="ri"><div style="min-width:0;flex:1"><div class="rt" style="${col(t,'done')==='true'?'text-decoration:line-through;color:var(--tt)':''}">${col(t,'desc')}</div><div class="rs">${col(t,'asignado')||''} ${col(t,'venc')?'· '+col(t,'venc'):''}</div></div><span class="pill ${ppill(col(t,'prioridad'))}">${col(t,'prioridad')}</span></div>`).join('');
+}
+function renderReportes(data,elId){
+  const el=document.getElementById(elId||'l-rep');
+  if(!data.length){el.innerHTML=es('ti-chart-off','Sin reportes aún.');return}
+  el.innerHTML=data.slice().reverse().map(r=>`<div class="ri"><div class="ico" style="background:var(--bgi);color:var(--tii)"><i class="ti ti-chart-bar"></i></div><div class="rin"><div class="rt">${col(r,'proyecto')} ${col(r,'pct')?'· '+col(r,'pct')+'%':''}</div><div class="rs">${col(r,'responsable')||col(r,'usuario')||''} · ${col(r,'fecha')}</div><div style="font-size:11px;color:var(--ts);margin-top:2px">${col(r,'desc')}</div></div></div>`).join('');
+}
+function renderIncidencias(data,elId){
+  const el=document.getElementById(elId||'l-inc');
+  const open=data.filter(i=>col(i,'estado')==='Abierta');
+  if(!open.length){el.innerHTML=es('ti-circle-check','Sin incidencias activas.');return}
+  el.innerHTML=open.map(i=>`<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:.5px solid var(--bo)"><div><div style="font-size:13px;font-weight:500">${col(i,'desc')}</div><div style="font-size:11px;color:var(--ts)">${col(i,'proyecto')} · ${col(i,'fecha')}</div></div><span class="pill ${ppill(col(i,'prioridad'))}">${col(i,'prioridad')}</span></div>`).join('');
+}
+function renderCargas(data,elId){
+  const el=document.getElementById(elId||'l-car');
+  if(!data.length){el.innerHTML=es('ti-inbox','Sin registros aún.');return}
+  el.innerHTML=data.slice().reverse().map(c=>`<div class="ri"><div class="ico" style="background:var(--bg2);color:var(--ts)"><i class="ti ti-notes"></i></div><div class="rin"><div class="rt">${col(c,'tipo')} — ${col(c,'proyecto')}</div><div class="rs">${col(c,'responsable')||col(c,'usuario')||''} · ${col(c,'fecha')}</div><div style="font-size:11px;color:var(--ts)">${col(c,'desc')}</div></div></div>`).join('');
+}
+function renderProveedores(data,elId){
+  const el=document.getElementById(elId||'l-prov');if(!el)return;
+  if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-building-store"></i><p>Sin proveedores.</p></div>`;return}
+  el.innerHTML=data.map(p=>`<div class="cc"><div style="display:flex;align-items:center;gap:8px"><div class="cav" style="background:var(--bgi);color:var(--tii)">${(col(p,'nombre')||'?').slice(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500">${col(p,'nombre')}</div><div style="font-size:11px;color:var(--ts)">${col(p,'rubro')||''}</div></div></div>${col(p,'contacto')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-user" style="font-size:12px"></i> ${col(p,'contacto')}</div>`:''}${col(p,'tel')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-phone" style="font-size:12px"></i> ${col(p,'tel')}</div>`:''}${col(p,'email')?`<div style="font-size:12px;color:var(--tii)">${col(p,'email')}</div>`:''}${col(p,'nota')?`<div style="font-size:11px;color:var(--tt);padding-top:5px;border-top:.5px solid var(--bo);margin-top:3px">${col(p,'nota')}</div>`:''}</div>`).join('');
+}
+function renderSites(data,elId){
+  const el=document.getElementById(elId||'l-sit');if(!el)return;
+  if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-antenna"></i><p>Sin contactos.</p></div>`;return}
+  el.innerHTML=data.map(s=>`<div class="cc"><div style="display:flex;align-items:center;gap:8px"><div class="cav" style="background:var(--bgs);color:var(--tss)">${(col(s,'nombre')||'?').slice(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500">${col(s,'nombre')}</div><div style="font-size:11px;color:var(--ts)">${col(s,'empresa')||''} ${col(s,'rol')?'· '+col(s,'rol'):''}</div></div></div>${col(s,'tel')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-phone" style="font-size:12px"></i> ${col(s,'tel')}</div>`:''}${col(s,'email')?`<div style="font-size:12px;color:var(--tii)">${col(s,'email')}</div>`:''}</div>`).join('');
+}
+function renderSytex(data,elId){
+  const el=document.getElementById(elId||'l-syt');if(!el)return;
+  if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-id-badge"></i><p>Sin usuarios Sytex.</p></div>`;return}
+  el.innerHTML=data.map(x=>`<div class="cc"><div style="display:flex;align-items:center;gap:8px"><div class="cav" style="background:var(--bgw);color:var(--tww)">${(col(x,'nombre')||'?').slice(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500">${col(x,'nombre')}</div><div style="font-size:11px;color:var(--ts)">@${col(x,'usuario')||'—'} · ${col(x,'perfil')}</div></div></div>${col(x,'tel')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-phone" style="font-size:12px"></i> ${col(x,'tel')}</div>`:''}${col(x,'email')?`<div style="font-size:12px;color:var(--tii)">${col(x,'email')}</div>`:''}</div>`).join('');
+}
+
+function renderEquipo(){
+  const bgMap={info:'bgi',success:'bgs',warning:'bgw',danger:'bgd',gray:'bg2'};
+  const tcMap={info:'tii',success:'tss',warning:'tww',danger:'tdd',gray:'ts'};
+  const el=document.getElementById('l-equipo');if(!el)return;
+  const members=Object.entries(USERS).filter(([k])=>k!=='invitado');
+  el.innerHTML=members.map(([k,u])=>{
+    const bg=bgMap[u.color]||'bg2';const tc=tcMap[u.color]||'ts';
+    return`<div class="mcard">
+      <div class="mcard-av" style="background:var(--${bg});color:var(--${tc})">${u.initials}</div>
+      <div style="font-size:13px;font-weight:500">${u.fullname||u.name}</div>
+      <div style="font-size:11px;color:var(--ts)">${u.role}</div>
+      ${u.email?`<div style="font-size:11px;color:var(--tii)">${u.email}</div>`:''}
+      <span class="pill pg" style="font-size:10px">Activo</span>
+      ${CU?.isAdmin?`<div style="display:flex;gap:5px;margin-top:4px">
+        <button class="btn be" style="font-size:11px;padding:3px 8px" onclick="openM('editarUsuario','${k}')"><i class="ti ti-pencil" style="font-size:11px"></i> Editar</button>
+        ${k!=='meiningis'?`<button class="btn bd" style="font-size:11px;padding:3px 8px" onclick="delMiembro('${k}')"><i class="ti ti-trash" style="font-size:11px"></i> Quitar</button>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderAdminPanel(){
+  const bgMap={info:'bgi',success:'bgs',warning:'bgw',danger:'bgd',gray:'bg2'};
+  const tcMap={info:'tii',success:'tss',warning:'tww',danger:'tdd',gray:'ts'};
+  const at=document.getElementById('l-admin-team');if(!at)return;
+  const members=Object.entries(USERS).filter(([k])=>k!=='invitado');
+  at.innerHTML=`<table class="utbl">
+    <thead><tr><th>Usuario</th><th>Nombre completo</th><th>Rol</th><th>Email</th><th>Teléfono</th><th></th></tr></thead>
+    <tbody>
+    ${members.map(([k,u])=>{
+      const bg=bgMap[u.color]||'bg2';const tc=tcMap[u.color]||'ts';
+      return`<tr>
+        <td><div style="display:flex;align-items:center;gap:8px">
+          <div style="width:26px;height:26px;border-radius:50%;background:var(--${bg});color:var(--${tc});display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0">${u.initials}</div>
+          <code style="font-size:12px;color:var(--ts)">${k}</code>
+          ${u.isAdmin?'<span class="pill pi" style="font-size:10px">Admin</span>':''}
+        </div></td>
+        <td style="font-weight:500">${u.fullname||u.name}</td>
+        <td style="color:var(--ts);font-size:12px">${u.role}</td>
+        <td style="font-size:12px;color:var(--tii)">${u.email||'—'}</td>
+        <td style="font-size:12px;color:var(--ts)">${u.tel||'—'}</td>
+        <td style="text-align:right">
+          <div style="display:flex;gap:5px;justify-content:flex-end">
+            <button class="btn be" style="font-size:11px;padding:4px 10px" onclick="openM('editarUsuario','${k}')"><i class="ti ti-pencil" style="font-size:11px"></i> Editar</button>
+            ${k!=='meiningis'?`<button class="btn bd" style="font-size:11px;padding:4px 10px" onclick="delMiembro('${k}')"><i class="ti ti-trash" style="font-size:11px"></i> Quitar</button>`:''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ══ SHARE ══
+function openShare(){document.getElementById('slink').value=window.location.href.split('?')[0]+'?guest=1';document.getElementById('shov').classList.add('open')}
+function closeShare(){document.getElementById('shov').classList.remove('open')}
+function copyShare(){navigator.clipboard.writeText(document.getElementById('slink').value).then(()=>toast('Link copiado ✓'))}
+document.getElementById('shov').addEventListener('click',e=>{if(e.target===document.getElementById('shov'))closeShare()});
+
+const guestParam=new URLSearchParams(window.location.search).get('guest');
+if(guestParam==='1'){document.getElementById('lu').value='invitado';setTimeout(doLogin,100)}
+
+// ══ TOAST ══
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.transform='translateY(0)';t.style.opacity='1';setTimeout(()=>{t.style.transform='translateY(70px)';t.style.opacity='0'},2800)}
+
+// ══ IA ══
+const AI_SYS=`Sos el asistente técnico de Noya Telecomunicaciones (Argentina). Especialidad: normas IRAM, ENACOM, ITU-R, EIA/TIA-222, seguridad en altura (Res. SRT 503/2014), hormigón H25, zapatas para torres, ensayos de laboratorio. Proyectos activos: Bellocq, Pereyra, Gral. Las Heras, Uribelarrea, Atalaya. Respondé en español, de forma técnica y precisa.`;
+function aimsg(who,txt){
+  const logo=`<div class="aiav"><svg width="12" height="12" viewBox="0 0 18 18" fill="none"><rect x="8" y="5" width="1" height="9" rx=".5" fill="white" opacity=".9"/><circle cx="8.5" cy="4.5" r="1.8" fill="#4d8fff"/></svg></div>`;
+  if(who==='bot')return`<div class="aim">${logo}<div class="aib">${txt}</div></div>`;
+  const cols={info:'bgi',success:'bgs',warning:'bgw',danger:'bgd',gray:'bg2'};
+  const bg=cols[CU?.color||'info']||'bgi';
+  return`<div class="aim u"><div class="aiav" style="background:var(--${bg})"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="aib">${txt}</div></div>`;
+}
+function askAI(msg){document.getElementById('ai-in').value=msg;go('asistente',null);setTimeout(sendAI,80)}
+async function sendAI(){
+  const inp=document.getElementById('ai-in');const msg=inp.value.trim();if(!msg)return;
+  inp.value='';const chat=document.getElementById('ai-chat');
+  chat.innerHTML+=aimsg('user',msg);
+  const tid='t'+Date.now();
+  chat.innerHTML+=`<div class="aim" id="${tid}">${`<div class="aiav"><svg width="12" height="12" viewBox="0 0 18 18" fill="none"><rect x="8" y="5" width="1" height="9" rx=".5" fill="white" opacity=".9"/><circle cx="8.5" cy="4.5" r="1.8" fill="#4d8fff"/></svg></div>`}<div class="aib" style="color:var(--tt);font-style:italic">Consultando...</div></div>`;
+  chat.scrollTop=chat.scrollHeight;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:AI_SYS,messages:[{role:'user',content:msg}]})});
+    const d=await r.json();const rep=d.content?.[0]?.text||'Sin respuesta.';
+    const b=document.getElementById(tid)?.querySelector('.aib');
+    if(b){b.innerHTML=rep.replace(/\n/g,'<br>');b.style.fontStyle='';b.style.color=''}
+  }catch(e){const b=document.getElementById(tid)?.querySelector('.aib');if(b)b.textContent='Error de conexión.'}
+  chat.scrollTop=chat.scrollHeight;
+}
+</script>
+</body>
+</html>
