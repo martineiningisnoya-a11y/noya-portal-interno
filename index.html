@@ -156,7 +156,7 @@ body{font-family:var(--font-sans);color:var(--ti);background:var(--bg3);font-siz
       <div class="ni" onclick="go('cargar',this)"><i class="ti ti-upload"></i> Cargar info</div>
       <div class="ns">Contactos</div>
       <div class="ni" onclick="go('proveedores',this)"><i class="ti ti-building-store"></i> Proveedores</div>
-      <div class="ni" onclick="go('sites',this)"><i class="ti ti-antenna"></i> Contactos Sites</div>
+      <div class="ni" onclick="go('Contactos Sites',this)"><i class="ti ti-antenna"></i> Contactos Contactos Sites</div>
       <div class="ni" onclick="go('sytex',this)"><i class="ti ti-id-badge"></i> Usuarios Sytex</div>
       <div class="ns">Equipo</div>
       <div class="ni" onclick="go('equipo',this)"><i class="ti ti-users"></i> Miembros</div>
@@ -264,9 +264,9 @@ body{font-family:var(--font-sans);color:var(--ti);background:var(--bg3);font-siz
           <div class="card"><div class="ch"><span class="ct">Proveedores</span><button class="btn bp" onclick="openM('proveedor')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-prov" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i><p>Cargando...</p></div></div></div>
         </div>
 
-        <!-- SITES -->
-        <div id="s-sites" class="sec">
-          <div class="card"><div class="ch"><span class="ct">Contactos Sites</span><button class="btn bp" onclick="openM('site')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-sit" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-antenna"></i><p>Sin contactos de sites.</p></div></div></div>
+        <!-- Contactos Sites -->
+        <div id="s-Contactos Sites" class="sec">
+          <div class="card"><div class="ch"><span class="ct">Contactos Contactos Sites</span><button class="btn bp" onclick="openM('site')"><i class="ti ti-plus" style="font-size:13px"></i> Agregar</button></div><div id="l-sit" class="g2"><div class="empty" style="grid-column:1/-1"><i class="ti ti-antenna"></i><p>Sin contactos de Contactos Sites.</p></div></div></div>
         </div>
 
         <!-- SYTEX -->
@@ -411,7 +411,7 @@ function fillRespSelects(){
 }
 
 // ══ NAVEGACIÓN ══
-const TITLES={dashboard:'Dashboard',proyectos:'Proyectos',tareas:'Tareas',ubicacion:'Ubicación de sitio',presupuestos:'Presupuestos',reportes:'Reportes',incidencias:'Incidencias',cargar:'Cargar información',proveedores:'Proveedores',sites:'Contactos Sites',sytex:'Usuarios Sytex',equipo:'Equipo',admin:'Administración',asistente:'Asistente IA'};
+const TITLES={dashboard:'Dashboard',proyectos:'Proyectos',tareas:'Tareas',ubicacion:'Ubicación de sitio',presupuestos:'Presupuestos',reportes:'Reportes',incidencias:'Incidencias',cargar:'Cargar información',proveedores:'Proveedores',Contactos Sites:'Contactos Contactos Sites',sytex:'Usuarios Sytex',equipo:'Equipo',admin:'Administración',asistente:'Asistente IA'};
 function go(id,el){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   const s=document.getElementById('s-'+id);if(s)s.classList.add('on');
@@ -424,7 +424,7 @@ function go(id,el){
   if(id==='incidencias')loadSection('Incidencias','l-inc',renderIncidencias);
   if(id==='cargar')loadSection('Cargas','l-car',renderCargas);
   if(id==='proveedores')loadSection('Proveedores','l-prov',renderProveedores);
-  if(id==='sites')loadSection('Contactos Sites','l-sit',renderSites);
+  if(id==='Contactos Sites')loadSection('Contactos Contactos Sites','l-sit',renderContactos Sites);
   if(id==='sytex')loadSection('Sytex','l-syt',renderSytex);
   if(id==='admin')renderAdminPanel();
 }
@@ -585,7 +585,7 @@ const MODS={
     <div class="ff"><label>Empresa</label><input id="m-se"></div><div class="ff"><label>Rol</label><input id="m-sr"></div>
     <div class="ff"><label>Teléfono</label><input id="m-st"></div><div class="ff"><label>Email</label><input type="email" id="m-sm"></div>
     <div class="ff fw"><label>Sitio relacionado</label><input id="m-ss"></div></div>
-    <button class="btn bp" onclick="saveModalToSheets('Contactos Sites',['id','nombre','empresa','rol','tel','email','sitio'],[uid(),v('m-sn'),v('m-se'),v('m-sr'),v('m-st'),v('m-sm'),v('m-ss')])">Guardar contacto</button>`,
+    <button class="btn bp" onclick="saveModalToSheets('Contactos Contactos Sites',['id','nombre','empresa','rol','tel','email','sitio'],[uid(),v('m-sn'),v('m-se'),v('m-sr'),v('m-st'),v('m-sm'),v('m-ss')])">Guardar contacto</button>`,
 
   sytex:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Usuario Sytex</div>
     <div class="fg"><div class="ff fw"><label>Nombre completo</label><input id="m-xn"></div>
@@ -677,7 +677,7 @@ async function saveModalToSheets(sheet,headers,row){
   const btn=document.querySelector('.mbox .bp');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   try{
     const res=await sheetsPost({action:'append',sheet,headers,row});
-    if(res.ok){toast('✓ Guardado');closeM();const maps={Proyectos:['l-proy',renderProyectos],Tareas:['l-tar',renderTareas],Proveedores:['l-prov',renderProveedores],'Contactos Sites':['l-sit',renderSites],Sytex:['l-syt',renderSytex]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
+    if(res.ok){toast('✓ Guardado');closeM();const maps={Proyectos:['l-proy',renderProyectos],Tareas:['l-tar',renderTareas],Proveedores:['l-prov',renderProveedores],'Contactos Contactos Sites':['l-sit',renderContactos Sites],Sytex:['l-syt',renderSytex]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
     else toast('Error: '+(res.error||'desconocido'));
   }catch(e){toast('Error de conexión')}
   if(btn){btn.disabled=false;btn.textContent='Guardar';}
@@ -741,7 +741,7 @@ function renderProveedores(data,elId){
   if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-building-store"></i><p>Sin proveedores.</p></div>`;return}
   el.innerHTML=data.map(p=>`<div class="cc"><div style="display:flex;align-items:center;gap:8px"><div class="cav" style="background:var(--bgi);color:var(--tii)">${(col(p,'nombre')||'?').slice(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500">${col(p,'nombre')}</div><div style="font-size:11px;color:var(--ts)">${col(p,'rubro')||''}</div></div></div>${col(p,'contacto')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-user" style="font-size:12px"></i> ${col(p,'contacto')}</div>`:''}${col(p,'tel')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-phone" style="font-size:12px"></i> ${col(p,'tel')}</div>`:''}${col(p,'email')?`<div style="font-size:12px;color:var(--tii)">${col(p,'email')}</div>`:''}${col(p,'nota')?`<div style="font-size:11px;color:var(--tt);padding-top:5px;border-top:.5px solid var(--bo);margin-top:3px">${col(p,'nota')}</div>`:''}</div>`).join('');
 }
-function renderSites(data,elId){
+function renderContactos Sites(data,elId){
   const el=document.getElementById(elId||'l-sit');if(!el)return;
   if(!data.length){el.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-antenna"></i><p>Sin contactos.</p></div>`;return}
   el.innerHTML=data.map(s=>`<div class="cc"><div style="display:flex;align-items:center;gap:8px"><div class="cav" style="background:var(--bgs);color:var(--tss)">${(col(s,'nombre')||'?').slice(0,2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500">${col(s,'nombre')}</div><div style="font-size:11px;color:var(--ts)">${col(s,'empresa')||''} ${col(s,'rol')?'· '+col(s,'rol'):''}</div></div></div>${col(s,'tel')?`<div style="font-size:12px;color:var(--ts)"><i class="ti ti-phone" style="font-size:12px"></i> ${col(s,'tel')}</div>`:''}${col(s,'email')?`<div style="font-size:12px;color:var(--tii)">${col(s,'email')}</div>`:''}</div>`).join('');
