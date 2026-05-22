@@ -95,7 +95,7 @@ async function startLoad(){
   ];
 
   for(const c of contactos){
-    await send('Sites',hs,c,c[1]+' — '+c[3]);
+    await send('Contactos Sites',hs,c,c[1]+' — '+c[3]);
     await sleep(1000);
   }
 

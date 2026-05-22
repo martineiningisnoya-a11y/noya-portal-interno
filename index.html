@@ -424,7 +424,7 @@ function go(id,el){
   if(id==='incidencias')loadSection('Incidencias','l-inc',renderIncidencias);
   if(id==='cargar')loadSection('Cargas','l-car',renderCargas);
   if(id==='proveedores')loadSection('Proveedores','l-prov',renderProveedores);
-  if(id==='sites')loadSection('Sites','l-sit',renderSites);
+  if(id==='sites')loadSection('Contactos Sites','l-sit',renderSites);
   if(id==='sytex')loadSection('Sytex','l-syt',renderSytex);
   if(id==='admin')renderAdminPanel();
 }
@@ -585,7 +585,7 @@ const MODS={
     <div class="ff"><label>Empresa</label><input id="m-se"></div><div class="ff"><label>Rol</label><input id="m-sr"></div>
     <div class="ff"><label>Teléfono</label><input id="m-st"></div><div class="ff"><label>Email</label><input type="email" id="m-sm"></div>
     <div class="ff fw"><label>Sitio relacionado</label><input id="m-ss"></div></div>
-    <button class="btn bp" onclick="saveModalToSheets('Sites',['id','nombre','empresa','rol','tel','email','sitio'],[uid(),v('m-sn'),v('m-se'),v('m-sr'),v('m-st'),v('m-sm'),v('m-ss')])">Guardar contacto</button>`,
+    <button class="btn bp" onclick="saveModalToSheets('Contactos Sites',['id','nombre','empresa','rol','tel','email','sitio'],[uid(),v('m-sn'),v('m-se'),v('m-sr'),v('m-st'),v('m-sm'),v('m-ss')])">Guardar contacto</button>`,
 
   sytex:()=>`<div style="font-size:14px;font-weight:500;margin-bottom:14px">Usuario Sytex</div>
     <div class="fg"><div class="ff fw"><label>Nombre completo</label><input id="m-xn"></div>
@@ -677,7 +677,7 @@ async function saveModalToSheets(sheet,headers,row){
   const btn=document.querySelector('.mbox .bp');if(btn){btn.disabled=true;btn.textContent='Guardando...';}
   try{
     const res=await sheetsPost({action:'append',sheet,headers,row});
-    if(res.ok){toast('✓ Guardado');closeM();const maps={Proyectos:['l-proy',renderProyectos],Tareas:['l-tar',renderTareas],Proveedores:['l-prov',renderProveedores],Sites:['l-sit',renderSites],Sytex:['l-syt',renderSytex]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
+    if(res.ok){toast('✓ Guardado');closeM();const maps={Proyectos:['l-proy',renderProyectos],Tareas:['l-tar',renderTareas],Proveedores:['l-prov',renderProveedores],'Contactos Sites':['l-sit',renderSites],Sytex:['l-syt',renderSytex]};if(maps[sheet])loadSection(sheet,...maps[sheet]);}
     else toast('Error: '+(res.error||'desconocido'));
   }catch(e){toast('Error de conexión')}
   if(btn){btn.disabled=false;btn.textContent='Guardar';}
