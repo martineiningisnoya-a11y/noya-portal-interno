@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Noya — Cargar Contactos Sites</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0a0e1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;color:#0a0e1a;border-radius:16px;padding:32px;width:580px;max-width:100%}
+h1{font-size:18px;font-weight:500;margin-bottom:6px}
+.sub{font-size:13px;color:#6b7280;margin-bottom:20px;line-height:1.6}
+.progress-wrap{background:#f4f6fb;border-radius:8px;overflow:hidden;height:8px;margin:12px 0}
+.progress-bar{height:100%;background:#185FA5;border-radius:8px;transition:width .3s;width:0%}
+.log{background:#f4f6fb;border-radius:10px;padding:14px;font-size:12px;font-family:monospace;height:200px;overflow-y:auto;margin-bottom:14px}
+.lok{color:#3B6D11}.lerr{color:#b91c1c}.linf{color:#185FA5;font-weight:500}.ldiv{color:#9ca3af;padding:3px 0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sb{background:#f4f6fb;border-radius:8px;padding:12px;text-align:center}
+.sv{font-size:22px;font-weight:500;line-height:1}.sl{font-size:11px;color:#6b7280;margin-top:3px}
+.btn{width:100%;padding:11px;border-radius:8px;background:#0a0e1a;color:#fff;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn:hover:not(:disabled){background:#185FA5}
+.btn:disabled{background:#9ca3af;cursor:not-allowed}
+.preview{border-radius:10px;overflow:hidden;border:.5px solid #e5e7eb;margin-bottom:16px}
+.preview table{width:100%;border-collapse:collapse;font-size:12px}
+.preview th{background:#f4f6fb;padding:7px 10px;text-align:left;font-weight:500;color:#6b7280;font-size:11px}
+.preview td{padding:8px 10px;border-top:.5px solid #e5e7eb}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>📋 Cargar Contactos Sites → NoyaSitios</h1>
+  <div class="sub">Carga los <strong>4 contactos de Sites Latam</strong> en la pestaña <strong>Sites</strong> de tu planilla NoyaSitios.</div>
+
+  <div class="preview">
+    <table>
+      <thead><tr><th>Nombre</th><th>Rol</th><th>Teléfono</th><th>Email</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Juan Bacarini</strong></td><td>Gerente AUP</td><td>—</td><td>Juan.Bacarini@siteslatam.com.ar</td></tr>
+        <tr><td><strong>Matías Werlen</strong></td><td>Especialista</td><td>+54 9 351 707-7673</td><td>matias.werlen@siteslatam.com.ar</td></tr>
+        <tr><td><strong>Sandra Sandez</strong></td><td>Especialista</td><td>+54 9 11 3790-3628</td><td>sandra.sandez@siteslatam.com.ar</td></tr>
+        <tr><td><strong>Rodrigo Moreno</strong></td><td>Especialista</td><td>+54 9 351 517-9732</td><td>rodrigo.moreno@siteslatam.com.ar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stat">
+    <div class="sb"><div class="sv" id="s-ok" style="color:#3B6D11">0</div><div class="sl">Cargados ✓</div></div>
+    <div class="sb"><div class="sv" id="s-tot">4</div><div class="sl">Total contactos</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+  <div class="log" id="log"><div class="linf">→ Listo. Hacé clic para cargar.</div></div>
+  <button class="btn" id="btn" onclick="startLoad()">Cargar contactos en Google Sheets</button>
+</div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbzljxOOlGAm3T9PcB8WbDLWHXJosDlMSX6HF0p4jH0QgDBXnI41v4Cl6ZOCvvnQGsnjGw/exec';
+const TOTAL=4;
+let sent=0;
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function log(msg,type){
+  const el=document.getElementById('log');
+  const d=document.createElement('div');
+  d.className='l'+(type||'inf');
+  d.innerHTML=(type==='ok'?'✓ ':type==='err'?'✗ ':'→ ')+msg;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+async function send(sheet,headers,row,label){
+  try{
+    await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'append',sheet,headers,row})});
+    sent++;
+    document.getElementById('s-ok').textContent=sent;
+    document.getElementById('pbar').style.width=(sent/TOTAL*100)+'%';
+    log(label,'ok');
+  }catch(e){log(label+' — '+e.message,'err')}
+}
+
+async function startLoad(){
+  const btn=document.getElementById('btn');
+  btn.disabled=true;btn.textContent='Cargando...';
+  sent=0;document.getElementById('s-ok').textContent='0';
+  document.getElementById('pbar').style.width='0%';
+  document.getElementById('log').innerHTML='';
+
+  const hs=['id','nombre','empresa','rol','tel','email','sitio','notas'];
+
+  log('CONTACTOS SITES LATAM','div');
+
+  const contactos=[
+    [uid(),'Juan Manuel Bacarini','Sites Latam','Gerente AUP','','Juan.Bacarini@siteslatam.com.ar','Todos los proyectos','Gerente AUP — Sites Latam Argentina'],
+    [uid(),'Matías Roberto Werlen','Sites Latam','Especialista','+54 9 351 707-7673','matias.werlen@siteslatam.com.ar','Todos los proyectos','Especialista Sites Latam'],
+    [uid(),'Sandra Susana Sandez','Sites Latam','Especialista','+54 9 11 3790-3628','sandra.sandez@siteslatam.com.ar','Todos los proyectos','Especialista Sites Latam · Revisora formularios'],
+    [uid(),'Rodrigo Moreno','Sites Latam','Especialista','+54 9 351 517-9732','rodrigo.moreno@siteslatam.com.ar','Uribelarrea · Atalaya · Las Heras','Asignado: Uribelarrea TA-26-320514, TA-26-610882 · Atalaya TA-26-450702'],
+  ];
+
+  for(const c of contactos){
+    await send('Sites',hs,c,c[1]+' — '+c[3]);
+    await sleep(1000);
+  }
+
+  log('─────────────────────────────────────────','div');
+  log('¡Listo! Verificá la pestaña Sites en NoyaSitios.','ok');
+  btn.textContent='✓ Contactos cargados — verificá NoyaSitios';
+  btn.style.background='#3B6D11';
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
