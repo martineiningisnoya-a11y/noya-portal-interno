@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Noya — Cargar Usuarios Sytex</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0a0e1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{background:#fff;color:#0a0e1a;border-radius:16px;padding:32px;width:600px;max-width:100%}
+h1{font-size:18px;font-weight:500;margin-bottom:6px}
+.sub{font-size:13px;color:#6b7280;margin-bottom:20px;line-height:1.6}
+.progress-wrap{background:#f4f6fb;border-radius:8px;overflow:hidden;height:8px;margin:12px 0}
+.progress-bar{height:100%;background:#185FA5;border-radius:8px;transition:width .3s;width:0%}
+.log{background:#f4f6fb;border-radius:10px;padding:14px;font-size:12px;font-family:monospace;height:200px;overflow-y:auto;margin-bottom:14px}
+.lok{color:#3B6D11}.lerr{color:#b91c1c}.linf{color:#185FA5;font-weight:500}.ldiv{color:#9ca3af;padding:3px 0}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sb{background:#f4f6fb;border-radius:8px;padding:12px;text-align:center}
+.sv{font-size:22px;font-weight:500;line-height:1}.sl{font-size:11px;color:#6b7280;margin-top:3px}
+.btn{width:100%;padding:11px;border-radius:8px;background:#0a0e1a;color:#fff;border:none;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn:hover:not(:disabled){background:#185FA5}
+.btn:disabled{background:#9ca3af;cursor:not-allowed}
+.preview{border-radius:10px;overflow:hidden;border:.5px solid #e5e7eb;margin-bottom:16px}
+.preview table{width:100%;border-collapse:collapse;font-size:12px}
+.preview th{background:#f4f6fb;padding:7px 10px;text-align:left;font-weight:500;color:#6b7280;font-size:11px}
+.preview td{padding:8px 10px;border-top:.5px solid #e5e7eb}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>📋 Cargar Usuarios Sytex → NoyaSitios</h1>
+  <div class="sub">Carga los <strong>5 usuarios de Sytex — Noya Group</strong> en la pestaña <strong>Sytex</strong> de tu planilla NoyaSitios.</div>
+
+  <div class="preview">
+    <table>
+      <thead><tr><th>Nombre</th><th>Email Sytex</th><th>Perfil</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Julieta Pinochi</strong></td><td>TEAM1@NOYAGROUP.COM.AR</td><td>Técnico</td></tr>
+        <tr><td><strong>Sergio Bara</strong></td><td>TEAM2@NOYAGROUP.COM.AR</td><td>Técnico</td></tr>
+        <tr><td><strong>Daniel Orellana</strong></td><td>TEAM3@NOYAGROUP.COM.AR</td><td>Técnico</td></tr>
+        <tr><td><strong>Angel Cespedes</strong></td><td>TEAM4@NOYAGROUP.COM.AR</td><td>Técnico</td></tr>
+        <tr><td><strong>Emanuel Seip</strong></td><td>TEAM5@NOYAGROUP.COM.AR</td><td>Técnico</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stat">
+    <div class="sb"><div class="sv" id="s-ok" style="color:#3B6D11">0</div><div class="sl">Cargados ✓</div></div>
+    <div class="sb"><div class="sv" id="s-tot">5</div><div class="sl">Total usuarios</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="pbar"></div></div>
+  <div class="log" id="log"><div class="linf">→ Listo. Hacé clic para cargar.</div></div>
+  <button class="btn" id="btn" onclick="startLoad()">Cargar usuarios en Google Sheets</button>
+</div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbzljxOOlGAm3T9PcB8WbDLWHXJosDlMSX6HF0p4jH0QgDBXnI41v4Cl6ZOCvvnQGsnjGw/exec';
+const TOTAL=5;
+let sent=0;
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function log(msg,type){
+  const el=document.getElementById('log');
+  const d=document.createElement('div');
+  d.className='l'+(type||'inf');
+  d.innerHTML=(type==='ok'?'✓ ':type==='err'?'✗ ':'→ ')+msg;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+async function send(sheet,headers,row,label){
+  try{
+    await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'append',sheet,headers,row})});
+    sent++;
+    document.getElementById('s-ok').textContent=sent;
+    document.getElementById('pbar').style.width=(sent/TOTAL*100)+'%';
+    log(label,'ok');
+  }catch(e){log(label+' — '+e.message,'err')}
+}
+
+async function startLoad(){
+  const btn=document.getElementById('btn');
+  btn.disabled=true;btn.textContent='Cargando...';
+  sent=0;document.getElementById('s-ok').textContent='0';
+  document.getElementById('pbar').style.width='0%';
+  document.getElementById('log').innerHTML='';
+
+  const hs=['id','nombre','usuario','perfil','tel','email','nota'];
+
+  log('USUARIOS SYTEX — Noya Group','div');
+
+  const usuarios=[
+    [uid(),'Julieta Pinochi',   'TEAM1@NOYAGROUP.COM.AR','Técnico','','TEAM1@NOYAGROUP.COM.AR','Pass Sytex: Noya123! · Obras Sites 2025'],
+    [uid(),'Sergio Bara',       'TEAM2@NOYAGROUP.COM.AR','Técnico','','TEAM2@NOYAGROUP.COM.AR','Pass Sytex: team2.Noya'],
+    [uid(),'Daniel Orellana',   'TEAM3@NOYAGROUP.COM.AR','Técnico','','TEAM3@NOYAGROUP.COM.AR','Pass Sytex: team3.Noya'],
+    [uid(),'Angel Cespedes',    'TEAM4@NOYAGROUP.COM.AR','Técnico','','TEAM4@NOYAGROUP.COM.AR','Pass Sytex: team4.Noya'],
+    [uid(),'Emanuel Seip',      'TEAM5@NOYAGROUP.COM.AR','Técnico','','TEAM5@NOYAGROUP.COM.AR','Pass Sytex: team5.Noya'],
+  ];
+
+  for(const u of usuarios){
+    await send('Sytex', hs, u, u[1]+' — '+u[2]);
+    await sleep(1200);
+  }
+
+  log('─────────────────────────────────────────','div');
+  log('¡Listo! Verificá la pestaña Sytex en NoyaSitios.','ok');
+  btn.textContent='✓ Usuarios cargados';
+  btn.style.background='#3B6D11';
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
