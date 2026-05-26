@@ -1439,3 +1439,4 @@ function toggleDetail(pid){
 </script>
 </body>
 </html>
+function toggleDetail(pid){const el=document.getElementById(pid);const ico=document.getElementById("ico-"+pid);if(!el)return;const isOpen=el.style.display!=="none"&&el.style.display!=="";el.style.display=isOpen?"none":"block";if(ico)ico.style.transform=isOpen?"":"rotate(180deg)";}
