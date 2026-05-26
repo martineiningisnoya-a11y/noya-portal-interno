@@ -1436,6 +1436,6 @@ function toggleDetail(pid){
   if(ico)ico.style.transform=isOpen?'':'rotate(180deg)';
 }
 
-</script>
+window.toggleDetail=function(pid){var el=document.getElementById(pid);var ico=document.getElementById('ico-'+pid);if(!el)return;var o=el.style.display!=='none'&&el.style.display!=='';el.style.display=o?'none':'block';if(ico)ico.style.transform=o?'':'rotate(180deg)';};</script>
 </body>
 </html>
