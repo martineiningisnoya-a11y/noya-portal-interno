@@ -395,47 +395,11 @@ body{font-family:var(--font-sans);color:var(--ti);background:var(--bg3);font-siz
 <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
 
 <script>
+function toggleDetail(pid){var el=document.getElementById(pid);var ico=document.getElementById("ico-"+pid);if(!el)return;var o=el.style.display!=="none"&&el.style.display!=="";el.style.display=o?"none":"block";if(ico)ico.style.transform=o?"":"rotate(180deg)";}
 // VERSION-2026-05-23-SITES-OK
 const API='https://script.google.com/macros/s/AKfycbzljxOOlGAm3T9PcB8WbDLWHXJosDlMSX6HF0p4jH0QgDBXnI41v4Cl6ZOCvvnQGsnjGw/exec';
 
 // ══ TOGGLE DETALLE PROYECTO ══
-
-function calComplete(id){
-  const mt=manualTasks.find(t=>t.id===id);
-  if(mt){mt.estado='Completada';try{localStorage.setItem('noya_cal_manual',JSON.stringify(manualTasks));}catch(e){}}
-  const ct=calTasks.find(t=>t.id===id);
-  if(ct)ct.estado='Completada';
-  renderVista();toast('Tarea completada ✓');
-}
-function calHide(id){
-  let h=[];try{h=JSON.parse(localStorage.getItem('noya_cal_hidden')||'[]');}catch(e){}
-  if(!h.includes(id)){h.push(id);try{localStorage.setItem('noya_cal_hidden',JSON.stringify(h));}catch(e){}}
-  calTasks=calTasks.filter(t=>t.id!==id);
-  renderVista();toast('Tarea ocultada');
-}
-function calDelete(id){
-  manualTasks=manualTasks.filter(t=>t.id!==id);
-  calTasks=calTasks.filter(t=>t.id!==id);
-  try{localStorage.setItem('noya_cal_manual',JSON.stringify(manualTasks));}catch(e){}
-  renderVista();toast('Tarea eliminada');
-}
-
-function switchProjTab(pid, tab){
-  const tareasCont = document.getElementById('ptab-'+pid+'-tareas-cont');
-  const wbsCont = document.getElementById('ptab-'+pid+'-workflows-cont');
-  const tareasBtn = document.getElementById('ptab-'+pid+'-tareas');
-  const wbsBtn = document.getElementById('ptab-'+pid+'-workflows');
-  if(!tareasCont||!wbsCont)return;
-  if(tab==='tareas'){
-    tareasCont.style.display='block';wbsCont.style.display='none';
-    tareasBtn.style.background='var(--bgi)';tareasBtn.style.color='var(--tii)';tareasBtn.style.fontWeight='500';
-    wbsBtn.style.background='var(--bg)';wbsBtn.style.color='var(--ts)';wbsBtn.style.fontWeight='400';
-  } else {
-    tareasCont.style.display='none';wbsCont.style.display='block';
-    wbsBtn.style.background='var(--bgi)';wbsBtn.style.color='var(--tii)';wbsBtn.style.fontWeight='500';
-    tareasBtn.style.background='var(--bg)';tareasBtn.style.color='var(--ts)';tareasBtn.style.fontWeight='400';
-  }
-}
 function toggleDetail(pid){
   const el=document.getElementById(pid);
   const ico=document.getElementById('ico-'+pid);
@@ -634,28 +598,6 @@ async function loadDashboard(){
 
       function fmtF(f){if(!f)return'';const d=new Date(String(f));return isNaN(d)?String(f).slice(0,10):d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}
 
-      // Workflows del proyecto
-      const projWBS=(WORKFLOWS[p.codigo]||[]);
-      const wbsHTML=projWBS.length?projWBS.map(w=>{
-        const estClr=w.estado==='Completado'?'var(--tss)':w.estado==='Activo'?'var(--tii)':'var(--ts)';
-        const estBg=w.estado==='Completado'?'var(--bgs)':w.estado==='Activo'?'var(--bgi)':'var(--bg2)';
-        return`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--bo)">
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
-              <a href="${w.enlace}" target="_blank" style="font-family:monospace;font-size:10px;color:var(--tii);background:var(--bgi);padding:1px 6px;border-radius:4px;text-decoration:none">${w.codigo} ↗</a>
-              ${w.hito?`<span style="font-size:10px;color:var(--ts)">${w.hito}</span>`:''}
-            </div>
-            <div style="font-size:12px;font-weight:500">${w.nombre}</div>
-            <div style="font-size:11px;color:var(--ts);margin-top:2px">
-              ${w.asignado?`<i class="ti ti-user" style="font-size:10px"></i> ${w.asignado}`:''}
-              ${w.contratista?` · Contratista: ${w.contratista}`:''}
-              ${w.fecha_plan?` · Plan: ${w.fecha_plan}`:''}
-            </div>
-          </div>
-          <span style="font-size:10px;font-weight:500;color:${estClr};background:${estBg};padding:2px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0">${w.estado}</span>
-        </div>`;
-      }).join(''):`<div style="font-size:12px;color:var(--tt);padding:8px 0;text-align:center">Sin workflows cargados</div>`;
-
       const tareasHTML=tProj.length?tProj.map(t=>{
         const est=col(t,'estado')||'';
         const clr=stColor2[est]||'var(--ts)';
@@ -711,17 +653,8 @@ async function loadDashboard(){
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px">${chips}</div>
         <div id="${pid}" style="display:none;background:var(--bg2);border-radius:var(--r);padding:8px 12px;margin-top:8px">
-          <div style="display:flex;gap:3px;margin-bottom:8px">
-            <button onclick="switchProjTab('${pid}','tareas')" id="ptab-${pid}-tareas" style="padding:4px 10px;border:none;background:var(--bgi);color:var(--tii);border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font-sans)">Tareas Sytex</button>
-            <button onclick="switchProjTab('${pid}','workflows')" id="ptab-${pid}-workflows" style="padding:4px 10px;border:none;background:var(--bg);color:var(--ts);border-radius:5px;font-size:11px;cursor:pointer;font-family:var(--font-sans)">Workflows</button>
-          </div>
-          <div id="ptab-${pid}-tareas-cont">
-            <div style="font-size:11px;font-weight:500;color:var(--ts);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">Tareas del proyecto</div>
-            ${tareasHTML}
-          </div>
-          <div id="ptab-${pid}-workflows-cont" style="display:none">
-            ${wbsHTML}
-          </div>
+          <div style="font-size:11px;font-weight:500;color:var(--ts);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">Tareas del proyecto</div>
+          ${tareasHTML}
         </div>
       </div>`;
     }).join('');
@@ -991,9 +924,7 @@ function renderTareas(data,elId){
     'Uribelarrea Acceso':{bg:'var(--bgw)',tc:'var(--tww)'},
     'Atalaya':        {bg:'var(--bg2)',tc:'var(--ts)'}
   };
-  
-const WORKFLOWS={"AR-01-BA-04903-25": [{"codigo": "WBS-25-86694", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268564-wbs-25-86694"}, {"codigo": "WBS-26-29437", "nombre": "Gestión del Sitio", "estado": "Completado", "hito": "VIII - CONTRATADO SIN INICIO DE OBRA", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-06-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-308033-wbs-26-29437"}, {"codigo": "WBS-26-29438", "nombre": "Validación de Inversión", "estado": "Completado", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-21", "enlace": "https://app.sytex.io/o/108/w/workstructure-308034-wbs-26-29438"}, {"codigo": "WBS-26-29439", "nombre": "Estudios e Ingeniería", "estado": "Completado", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-06-07", "enlace": "https://app.sytex.io/o/108/w/workstructure-308035-wbs-26-29439"}, {"codigo": "WBS-26-25251", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-303655-wbs-26-25251"}, {"codigo": "WBS-26-52325", "nombre": "Construcción", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-01", "enlace": "https://app.sytex.io/o/108/w/workstructure-331923-wbs-26-52325"}], "AR-01-BA-05056-25": [{"codigo": "WBS-26-38141", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-06-07", "enlace": "https://app.sytex.io/o/108/w/workstructure-317185-wbs-26-38141"}, {"codigo": "WBS-26-38117", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-21", "enlace": "https://app.sytex.io/o/108/w/workstructure-317161-wbs-26-38117"}, {"codigo": "WBS-26-38096", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VI - CONTRATACIÓN", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-24", "enlace": "https://app.sytex.io/o/108/w/workstructure-317140-wbs-26-38096"}, {"codigo": "WBS-26-36409", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-315333-wbs-26-36409"}, {"codigo": "WBS-25-86693", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268563-wbs-25-86693"}], "AR-01-BA-05067-25": [{"codigo": "WBS-26-18014", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-02-26", "enlace": "https://app.sytex.io/o/108/w/workstructure-295702-wbs-26-18014"}, {"codigo": "WBS-26-21212", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VI - CONTRATACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-06-03", "enlace": "https://app.sytex.io/o/108/w/workstructure-298912-wbs-26-21212"}, {"codigo": "WBS-26-21213", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-09", "enlace": "https://app.sytex.io/o/108/w/workstructure-298913-wbs-26-21213"}, {"codigo": "WBS-26-21214", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-26", "enlace": "https://app.sytex.io/o/108/w/workstructure-298914-wbs-26-21214"}, {"codigo": "WBS-25-86701", "nombre": "Búsqueda candidatos", "estado": "Activo", "hito": "I - ASIGNACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268571-wbs-25-86701"}], "AR-01-BA-05090-25": [{"codigo": "WBS-26-54490", "nombre": "Construcción", "estado": "Activo", "hito": "", "asignado": "", "contratista": "", "fecha_plan": "2026-03-03", "enlace": "https://app.sytex.io/o/108/w/workstructure-334279-wbs-26-54490"}, {"codigo": "WBS-26-25261", "nombre": "Estudios e Ingeniería", "estado": "Completado", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-27", "enlace": "https://app.sytex.io/o/108/w/workstructure-303665-wbs-26-25261"}, {"codigo": "WBS-26-25260", "nombre": "Validación de Inversión", "estado": "Completado", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-303664-wbs-26-25260"}, {"codigo": "WBS-26-25259", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VII - PERMISOS", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-13", "enlace": "https://app.sytex.io/o/108/w/workstructure-303663-wbs-26-25259"}, {"codigo": "WBS-26-21211", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-02-27", "enlace": "https://app.sytex.io/o/108/w/workstructure-298911-wbs-26-21211"}, {"codigo": "WBS-25-87417", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-16", "enlace": "https://app.sytex.io/o/108/w/workstructure-269351-wbs-25-87417"}], "AR-01-BA-05194-26": [{"codigo": "WBS-26-28062", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Nadia Mercedes Santos", "contratista": "", "fecha_plan": "2026-06-05", "enlace": "https://app.sytex.io/o/108/w/workstructure-306560-wbs-26-28062"}, {"codigo": "WBS-26-28053", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "", "contratista": "", "fecha_plan": "2026-03-19", "enlace": "https://app.sytex.io/o/108/w/workstructure-306551-wbs-26-28053"}, {"codigo": "WBS-26-28044", "nombre": "Gestión del Sitio", "estado": "Completado", "hito": "VII - PERMISOS", "asignado": "", "contratista": "", "fecha_plan": "2026-06-13", "enlace": "https://app.sytex.io/o/108/w/workstructure-306542-wbs-26-28044"}, {"codigo": "WBS-26-24347", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Nadia Mercedes Santos", "contratista": "", "fecha_plan": "2026-03-08", "enlace": "https://app.sytex.io/o/108/w/workstructure-302207-wbs-26-24347"}, {"codigo": "WBS-25-90798", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-22", "enlace": "https://app.sytex.io/o/108/w/workstructure-272765-wbs-25-90798"}]};
-const EST_COLOR={
+  const EST_COLOR={
     'Enviado':'var(--tss)','Aprobado':'var(--tss)','Completada':'var(--tss)',
     'Completada con pendientes':'var(--tww)',
     'En proceso':'var(--tii)','En revisión':'var(--tii)',
@@ -1222,8 +1153,6 @@ const PROY_CAL={
   'AR-01-BA-05090-25':{nombre:'Uribelarrea',   bg:'#fef9c3',tc:'#BA7517',bdr:'#BA7517'},
   'AR-01-BA-05056-25':{nombre:'Atalaya',       bg:'#f4f6fb',tc:'#6b7280',bdr:'#9ca3af'},
 };
-
-const WORKFLOWS={"AR-01-BA-04903-25": [{"codigo": "WBS-25-86694", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268564-wbs-25-86694"}, {"codigo": "WBS-26-29437", "nombre": "Gestión del Sitio", "estado": "Completado", "hito": "VIII - CONTRATADO SIN INICIO DE OBRA", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-06-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-308033-wbs-26-29437"}, {"codigo": "WBS-26-29438", "nombre": "Validación de Inversión", "estado": "Completado", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-21", "enlace": "https://app.sytex.io/o/108/w/workstructure-308034-wbs-26-29438"}, {"codigo": "WBS-26-29439", "nombre": "Estudios e Ingeniería", "estado": "Completado", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-06-07", "enlace": "https://app.sytex.io/o/108/w/workstructure-308035-wbs-26-29439"}, {"codigo": "WBS-26-25251", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-303655-wbs-26-25251"}, {"codigo": "WBS-26-52325", "nombre": "Construcción", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-01", "enlace": "https://app.sytex.io/o/108/w/workstructure-331923-wbs-26-52325"}], "AR-01-BA-05056-25": [{"codigo": "WBS-26-38141", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-06-07", "enlace": "https://app.sytex.io/o/108/w/workstructure-317185-wbs-26-38141"}, {"codigo": "WBS-26-38117", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-21", "enlace": "https://app.sytex.io/o/108/w/workstructure-317161-wbs-26-38117"}, {"codigo": "WBS-26-38096", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VI - CONTRATACIÓN", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-24", "enlace": "https://app.sytex.io/o/108/w/workstructure-317140-wbs-26-38096"}, {"codigo": "WBS-26-36409", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-315333-wbs-26-36409"}, {"codigo": "WBS-25-86693", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268563-wbs-25-86693"}], "AR-01-BA-05067-25": [{"codigo": "WBS-26-18014", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-02-26", "enlace": "https://app.sytex.io/o/108/w/workstructure-295702-wbs-26-18014"}, {"codigo": "WBS-26-21212", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VI - CONTRATACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-06-03", "enlace": "https://app.sytex.io/o/108/w/workstructure-298912-wbs-26-21212"}, {"codigo": "WBS-26-21213", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "Noya Group", "fecha_plan": "2026-03-09", "enlace": "https://app.sytex.io/o/108/w/workstructure-298913-wbs-26-21213"}, {"codigo": "WBS-26-21214", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-26", "enlace": "https://app.sytex.io/o/108/w/workstructure-298914-wbs-26-21214"}, {"codigo": "WBS-25-86701", "nombre": "Búsqueda candidatos", "estado": "Activo", "hito": "I - ASIGNACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-15", "enlace": "https://app.sytex.io/o/108/w/workstructure-268571-wbs-25-86701"}], "AR-01-BA-05090-25": [{"codigo": "WBS-26-54490", "nombre": "Construcción", "estado": "Activo", "hito": "", "asignado": "", "contratista": "", "fecha_plan": "2026-03-03", "enlace": "https://app.sytex.io/o/108/w/workstructure-334279-wbs-26-54490"}, {"codigo": "WBS-26-25261", "nombre": "Estudios e Ingeniería", "estado": "Completado", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-05-27", "enlace": "https://app.sytex.io/o/108/w/workstructure-303665-wbs-26-25261"}, {"codigo": "WBS-26-25260", "nombre": "Validación de Inversión", "estado": "Completado", "hito": "V - VACC", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-10", "enlace": "https://app.sytex.io/o/108/w/workstructure-303664-wbs-26-25260"}, {"codigo": "WBS-26-25259", "nombre": "Gestión del Sitio", "estado": "Activo", "hito": "VII - PERMISOS", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-03-13", "enlace": "https://app.sytex.io/o/108/w/workstructure-303663-wbs-26-25259"}, {"codigo": "WBS-26-21211", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2026-02-27", "enlace": "https://app.sytex.io/o/108/w/workstructure-298911-wbs-26-21211"}, {"codigo": "WBS-25-87417", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-16", "enlace": "https://app.sytex.io/o/108/w/workstructure-269351-wbs-25-87417"}], "AR-01-BA-05194-26": [{"codigo": "WBS-26-28062", "nombre": "Estudios e Ingeniería", "estado": "Activo", "hito": "", "asignado": "Nadia Mercedes Santos", "contratista": "", "fecha_plan": "2026-06-05", "enlace": "https://app.sytex.io/o/108/w/workstructure-306560-wbs-26-28062"}, {"codigo": "WBS-26-28053", "nombre": "Validación de Inversión", "estado": "Activo", "hito": "V - VACC", "asignado": "", "contratista": "", "fecha_plan": "2026-03-19", "enlace": "https://app.sytex.io/o/108/w/workstructure-306551-wbs-26-28053"}, {"codigo": "WBS-26-28044", "nombre": "Gestión del Sitio", "estado": "Completado", "hito": "VII - PERMISOS", "asignado": "", "contratista": "", "fecha_plan": "2026-06-13", "enlace": "https://app.sytex.io/o/108/w/workstructure-306542-wbs-26-28044"}, {"codigo": "WBS-26-24347", "nombre": "Macro", "estado": "Activo", "hito": "", "asignado": "Nadia Mercedes Santos", "contratista": "", "fecha_plan": "2026-03-08", "enlace": "https://app.sytex.io/o/108/w/workstructure-302207-wbs-26-24347"}, {"codigo": "WBS-25-90798", "nombre": "Búsqueda candidatos", "estado": "Completado", "hito": "II - LOCALIZACIÓN", "asignado": "Rodrigo Moreno", "contratista": "", "fecha_plan": "2025-12-22", "enlace": "https://app.sytex.io/o/108/w/workstructure-272765-wbs-25-90798"}]};
 const EST_COLOR={'Abierta':'#BA7517','Abierto':'#BA7517','En proceso':'#185FA5','Completada':'#3B6D11','Completado':'#3B6D11','Completada con pendientes':'#BA7517','Rechazado':'#b91c1c','Rechazado ⚠️':'#b91c1c'};
 const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_SHORT=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -1246,11 +1175,11 @@ async function loadCalendar(){
   const titleEl=document.getElementById('cal-title');
   if(titleEl)titleEl.textContent='Cargando...';
   try{
-    const tareas=await sheetsGet('Tareas');
+    const [tareas,cargas]=await Promise.all([sheetsGet('Tareas'),sheetsGet('Cargas')]);
     const ta=Array.isArray(tareas)?tareas:[];
-    let _hidden=[];try{_hidden=JSON.parse(localStorage.getItem('noya_cal_hidden')||'[]');}catch(e){}
+    const ca=Array.isArray(cargas)?cargas:[];
     calTasks=[];
-    ta.forEach(t=>{
+    [...ta,...ca].forEach(t=>{
       const fin=parseFecha(col(t,'fecha_fin_plan')||col(t,'venc')||col(t,'fecha')||'');
       const ini=parseFecha(col(t,'fecha_inicio_plan')||'');
       if(!fin)return;
@@ -1265,7 +1194,6 @@ async function loadCalendar(){
       });
     });
     manualTasks.forEach(t=>calTasks.push({...t,fuente:'manual'}));
-    calTasks=calTasks.filter(t=>!_hidden.includes(t.id));
   }catch(e){calTasks=[...manualTasks];}
   renderVista();
 }
